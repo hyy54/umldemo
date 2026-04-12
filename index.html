@@ -1,0 +1,2814 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>軟體工程教學 — 需求工程與系統塑模</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ========== CSS Custom Properties ========== */
+:root {
+  --primary: #2563EB;
+  --primary-dark: #1E40AF;
+  --primary-light: #DBEAFE;
+  --sidebar-bg: #1E293B;
+  --sidebar-hover: #334155;
+  --sidebar-text: #CBD5E1;
+  --sidebar-active: #E2E8F0;
+  --sidebar-width: 280px;
+  --content-bg: #FFFFFF;
+  --page-bg: #F8FAFC;
+  --text-primary: #1E293B;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --border: #E2E8F0;
+  --border-light: #F1F5F9;
+  --code-bg: #F1F5F9;
+  --green: #059669;
+  --green-bg: #ECFDF5;
+  --amber: #D97706;
+  --amber-bg: #FFFBEB;
+  --red: #DC2626;
+  --red-bg: #FEF2F2;
+  --purple: #7C3AED;
+  --purple-bg: #F5F3FF;
+  --svg-stroke: #334155;
+  --svg-fill: #EFF6FF;
+  --svg-fill-alt: #F0FDF4;
+  --svg-fill-warn: #FFFBEB;
+  --svg-actor: #1E40AF;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+}
+
+/* ========== Reset & Base ========== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--text-primary);
+  background: var(--page-bg);
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ========== Sidebar ========== */
+#sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  overflow-y: auto;
+  z-index: 100;
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-header {
+  padding: 1.5rem 1.25rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.sidebar-header h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #F8FAFC;
+  letter-spacing: 0.02em;
+}
+.sidebar-header .subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+.sidebar-nav { padding: 0.75rem 0; flex: 1; }
+.sidebar-nav .group-header {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 1.2rem 1.25rem 0.4rem;
+  list-style: none;
+}
+.sidebar-nav a {
+  display: block;
+  padding: 0.5rem 1.25rem 0.5rem 1.5rem;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  font-size: 0.88rem;
+  border-left: 3px solid transparent;
+  transition: all 0.15s ease;
+  line-height: 1.5;
+}
+.sidebar-nav a:hover {
+  background: var(--sidebar-hover);
+  color: #F8FAFC;
+}
+.sidebar-nav a.active {
+  background: rgba(37, 99, 235, 0.15);
+  color: #93C5FD;
+  border-left-color: var(--primary);
+  font-weight: 500;
+}
+
+/* ========== Mobile Header ========== */
+.mobile-header {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 56px;
+  background: var(--sidebar-bg);
+  color: #F8FAFC;
+  z-index: 99;
+  align-items: center;
+  padding: 0 1rem;
+  gap: 0.75rem;
+}
+.hamburger {
+  background: none;
+  border: none;
+  color: #F8FAFC;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+}
+.mobile-header h2 { font-size: 1rem; font-weight: 600; }
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+
+/* ========== Main Content ========== */
+#content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-height: 100vh;
+}
+.page {
+  display: none;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 4rem;
+}
+.page.active { display: block; }
+
+/* ========== Page Header ========== */
+.chapter-tag {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 0.15rem 0.65rem;
+  border-radius: 100px;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.03em;
+}
+.page h1 {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+  margin-bottom: 1.5rem;
+}
+.page h1::after {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 2px;
+  margin-top: 0.75rem;
+}
+
+/* ========== Content Blocks ========== */
+.concept-block, .example-block, .summary-block, .practice-block {
+  margin-bottom: 2.5rem;
+}
+.page h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.page h2 .icon {
+  font-size: 1.1rem;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.concept-block h2 .icon { background: var(--primary-light); color: var(--primary); }
+.example-block h2 .icon { background: var(--green-bg); color: var(--green); }
+.summary-block h2 .icon { background: var(--purple-bg); color: var(--purple); }
+.practice-block h2 .icon { background: var(--amber-bg); color: var(--amber); }
+
+.page h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 1.5rem 0 0.75rem;
+}
+.page p { margin-bottom: 0.85rem; color: var(--text-secondary); }
+.page ul, .page ol {
+  margin: 0.5rem 0 1rem 1.2rem;
+  color: var(--text-secondary);
+}
+.page li { margin-bottom: 0.35rem; }
+.page strong { color: var(--text-primary); font-weight: 600; }
+
+/* ========== Info Card ========== */
+.info-card {
+  background: var(--content-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin: 1rem 0;
+  box-shadow: var(--shadow);
+}
+.callout {
+  border-left: 4px solid var(--primary);
+  background: var(--primary-light);
+  padding: 1rem 1.25rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin: 1rem 0;
+}
+.callout p { color: var(--text-primary); margin-bottom: 0; }
+.callout.green { border-left-color: var(--green); background: var(--green-bg); }
+.callout.amber { border-left-color: var(--amber); background: var(--amber-bg); }
+.callout.red { border-left-color: var(--red); background: var(--red-bg); }
+
+/* ========== Tables ========== */
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.92rem;
+  box-shadow: var(--shadow);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.styled-table thead th {
+  background: var(--sidebar-bg);
+  color: #F8FAFC;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.styled-table tbody td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.styled-table tbody tr:last-child td { border-bottom: none; }
+.styled-table tbody tr:nth-child(even) { background: var(--border-light); }
+
+/* ========== Diagram Container ========== */
+.diagram-container {
+  margin: 1.5rem 0;
+  text-align: center;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.diagram-container svg {
+  max-width: 100%;
+  height: auto;
+  display: inline-block;
+}
+.diagram-caption {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* ========== Practice Questions ========== */
+.question {
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.question-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--content-bg);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  text-align: left;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+.question-toggle:hover { background: var(--border-light); }
+.question-toggle .q-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: var(--amber);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.question-toggle .arrow {
+  margin-left: auto;
+  transition: transform 0.2s;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.question-toggle[aria-expanded="true"] .arrow { transform: rotate(180deg); }
+.answer {
+  padding: 1rem 1.25rem 1.25rem;
+  background: var(--border-light);
+  border-top: 1px solid var(--border);
+}
+.answer p:last-child { margin-bottom: 0; }
+
+/* ========== Summary List ========== */
+.summary-list {
+  list-style: none;
+  margin-left: 0;
+}
+.summary-list li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.summary-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.65em;
+  width: 8px;
+  height: 8px;
+  background: var(--primary);
+  border-radius: 50%;
+}
+
+/* ========== SVG Styles ========== */
+svg text {
+  font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+}
+.uml-line { stroke: var(--svg-stroke); stroke-width: 1.5; fill: none; }
+.uml-line-dashed { stroke: var(--svg-stroke); stroke-width: 1.5; fill: none; stroke-dasharray: 6,4; }
+.uml-fill { fill: var(--svg-fill); stroke: var(--svg-stroke); stroke-width: 1.5; }
+.uml-fill-alt { fill: var(--svg-fill-alt); stroke: var(--svg-stroke); stroke-width: 1.5; }
+.uml-fill-warn { fill: var(--svg-fill-warn); stroke: var(--svg-stroke); stroke-width: 1.5; }
+.uml-fill-purple { fill: var(--purple-bg); stroke: var(--svg-stroke); stroke-width: 1.5; }
+.uml-text { fill: var(--text-primary); font-size: 13px; }
+.uml-text-sm { fill: var(--text-secondary); font-size: 11px; }
+.uml-text-title { fill: var(--text-primary); font-size: 14px; font-weight: 700; }
+
+/* ========== Page Navigation ========== */
+.page-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.page-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  transition: background 0.15s;
+}
+.page-nav a:hover { background: var(--primary-light); }
+
+/* ========== Home Page Special ========== */
+.hero {
+  background: linear-gradient(135deg, var(--sidebar-bg) 0%, #334155 100%);
+  color: #F8FAFC;
+  padding: 2.5rem 2rem;
+  border-radius: var(--radius);
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-md);
+}
+.hero h1 { color: #F8FAFC; font-size: 2rem; }
+.hero h1::after { background: #60A5FA; }
+.hero p { color: #CBD5E1; }
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.feature-card {
+  background: var(--content-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+}
+.feature-card h3 {
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+  color: var(--primary);
+}
+.feature-card p { font-size: 0.88rem; margin-bottom: 0; }
+
+/* ========== Demo Page ========== */
+.demo-page { max-width: 1200px; }
+.demo-steps {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.demo-step-btn {
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 0.5rem;
+  border: none;
+  background: var(--code-bg);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+  text-align: center;
+}
+.demo-step-btn:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+.demo-step-btn:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
+.demo-step-btn:hover { background: var(--border); }
+.demo-step-btn.active {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 700;
+}
+.demo-step-btn .step-num {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-bottom: 0.1rem;
+}
+.demo-step-btn.active .step-num { color: var(--primary); }
+
+.demo-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  min-height: 480px;
+}
+.demo-left, .demo-right {
+  background: var(--content-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.demo-panel-header {
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.demo-left .demo-panel-header { background: var(--primary-light); color: var(--primary-dark); }
+.demo-right .demo-panel-header { background: var(--green-bg); color: var(--green); }
+.demo-panel-body { padding: 1.25rem; flex: 1; overflow-y: auto; }
+
+/* Demo UI components */
+.demo-ui { display: none; }
+.demo-ui.active { display: block; }
+
+.restaurant-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.restaurant-card {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 0.75rem; border: 1px solid var(--border);
+  border-radius: var(--radius); cursor: pointer; transition: all 0.15s;
+}
+.restaurant-card:hover { border-color: var(--primary); background: var(--primary-light); }
+.restaurant-card.selected { border-color: var(--primary); background: var(--primary-light); box-shadow: 0 0 0 2px var(--primary); }
+.r-icon { font-size: 2rem; }
+.r-info { flex: 1; }
+.r-info h4 { font-size: 0.95rem; margin-bottom: 0.1rem; }
+.r-info p { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
+.r-rating { color: var(--amber); font-weight: 700; font-size: 0.9rem; }
+
+.menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.menu-item {
+  padding: 0.75rem; border: 1px solid var(--border);
+  border-radius: var(--radius); cursor: pointer; transition: all 0.15s;
+  text-align: center;
+}
+.menu-item:hover { border-color: var(--green); background: var(--green-bg); }
+.menu-item.in-cart { border-color: var(--green); background: var(--green-bg); }
+.menu-item .m-icon { font-size: 1.8rem; display: block; margin-bottom: 0.3rem; }
+.menu-item .m-name { font-size: 0.88rem; font-weight: 600; }
+.menu-item .m-price { font-size: 0.82rem; color: var(--text-muted); }
+.menu-item .m-badge {
+  display: inline-block; background: var(--green); color: #fff;
+  font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 100px; margin-top: 0.3rem;
+}
+
+.cart-summary {
+  background: var(--code-bg); border-radius: var(--radius);
+  padding: 1rem; margin-bottom: 1rem;
+}
+.cart-item { display: flex; justify-content: space-between; margin-bottom: 0.3rem; font-size: 0.9rem; }
+.cart-total { border-top: 1px solid var(--border); padding-top: 0.5rem; margin-top: 0.5rem; font-weight: 700; display: flex; justify-content: space-between; }
+
+.pay-methods { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+.pay-method {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.75rem; border: 1px solid var(--border);
+  border-radius: var(--radius); cursor: pointer; transition: all 0.15s;
+}
+.pay-method:hover { border-color: var(--primary); }
+.pay-method.selected { border-color: var(--primary); background: var(--primary-light); }
+.pay-method .pm-icon { font-size: 1.3rem; }
+.pay-method .pm-name { font-weight: 600; font-size: 0.9rem; }
+
+.order-status {
+  text-align: center; padding: 1.5rem 0;
+}
+.status-icon { font-size: 3rem; margin-bottom: 0.75rem; display: block; }
+.status-text { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+.status-detail { font-size: 0.88rem; color: var(--text-secondary); }
+.status-timeline { margin-top: 1.5rem; text-align: left; }
+.timeline-item {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding-bottom: 1rem; position: relative;
+}
+.timeline-item:not(:last-child)::after {
+  content: ''; position: absolute; left: 11px; top: 26px;
+  width: 2px; height: calc(100% - 20px); background: var(--border);
+}
+.timeline-item.done::after { background: var(--green); }
+.timeline-dot {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--border); display: flex; align-items: center;
+  justify-content: center; font-size: 0.7rem; color: #fff; flex-shrink: 0;
+}
+.timeline-item.done .timeline-dot { background: var(--green); }
+.timeline-item.current .timeline-dot { background: var(--primary); animation: pulse 1.5s infinite; }
+.timeline-label { font-size: 0.85rem; padding-top: 0.15rem; }
+.timeline-label small { color: var(--text-muted); display: block; font-size: 0.78rem; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(37,99,235,0.3); } 50% { box-shadow: 0 0 0 6px rgba(37,99,235,0); } }
+
+.demo-btn {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.6rem 1.25rem; border: none; border-radius: var(--radius);
+  font-family: inherit; font-size: 0.9rem; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.demo-btn-primary { background: var(--primary); color: #fff; }
+.demo-btn-primary:hover { background: var(--primary-dark); }
+.demo-btn-outline { background: none; color: var(--primary); border: 1px solid var(--primary); }
+.demo-btn-outline:hover { background: var(--primary-light); }
+.demo-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* UML panel */
+.uml-panel { display: none; }
+.uml-panel.active { display: block; }
+.uml-panel svg { max-width: 100%; height: auto; }
+.uml-highlight-box { animation: highlightPulse 2s infinite; }
+@keyframes highlightPulse {
+  0%,100% { stroke: var(--primary); stroke-width: 2.5; }
+  50% { stroke: var(--primary); stroke-width: 4; }
+}
+.demo-explain-link {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  margin-top: 1rem; padding: 0.4rem 0.8rem;
+  background: var(--primary-light); color: var(--primary);
+  border-radius: var(--radius); font-size: 0.82rem; font-weight: 500;
+  text-decoration: none; transition: background 0.15s;
+}
+.demo-explain-link:hover { background: var(--primary); color: #fff; }
+
+.demo-footer-bar {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.demo-footer-bar strong { color: var(--text-primary); }
+
+/* ========== Responsive ========== */
+@media (max-width: 768px) {
+  #sidebar { transform: translateX(-100%); }
+  #sidebar.open { transform: translateX(0); }
+  .mobile-header { display: flex; }
+  .overlay.open { display: block; }
+  #content { margin-left: 0; padding-top: 56px; }
+  .page { padding: 1.5rem 1rem 3rem; }
+  .page h1 { font-size: 1.5rem; }
+  .hero { padding: 1.5rem 1.25rem; }
+  .hero h1 { font-size: 1.5rem; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .demo-split { grid-template-columns: 1fr; }
+  .demo-steps { gap: 0; }
+  .demo-step-btn { font-size: 0.72rem; padding: 0.5rem 0.3rem; }
+  .menu-grid { grid-template-columns: 1fr; }
+}
+@media print {
+  #sidebar, .mobile-header, .page-nav { display: none !important; }
+  #content { margin-left: 0; }
+  .page { display: block !important; max-width: none; padding: 1rem; }
+  .page + .page { page-break-before: always; }
+}
+</style>
+</head>
+<body>
+
+<!-- ========== SVG DEFS ========== -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--svg-stroke)"/>
+    </marker>
+    <marker id="arrow-open" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="var(--svg-stroke)" stroke-width="1.5"/>
+    </marker>
+    <marker id="diamond-filled" viewBox="0 0 12 12" refX="12" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+      <path d="M 0 6 L 6 0 L 12 6 L 6 12 z" fill="var(--svg-stroke)"/>
+    </marker>
+    <marker id="diamond-open" viewBox="0 0 12 12" refX="12" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+      <path d="M 0 6 L 6 0 L 12 6 L 6 12 z" fill="#fff" stroke="var(--svg-stroke)" stroke-width="1.5"/>
+    </marker>
+    <marker id="inherit" viewBox="0 0 12 12" refX="12" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#fff" stroke="var(--svg-stroke)" stroke-width="1.5"/>
+    </marker>
+    <symbol id="actor" viewBox="0 0 40 60">
+      <circle cx="20" cy="10" r="8" fill="none" stroke="var(--svg-actor)" stroke-width="2"/>
+      <line x1="20" y1="18" x2="20" y2="38" stroke="var(--svg-actor)" stroke-width="2"/>
+      <line x1="5" y1="26" x2="35" y2="26" stroke="var(--svg-actor)" stroke-width="2"/>
+      <line x1="20" y1="38" x2="8" y2="55" stroke="var(--svg-actor)" stroke-width="2"/>
+      <line x1="20" y1="38" x2="32" y2="55" stroke="var(--svg-actor)" stroke-width="2"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ========== Mobile Header ========== -->
+<div class="mobile-header">
+  <button class="hamburger" aria-label="開啟選單" onclick="toggleSidebar()">&#9776;</button>
+  <h2>軟體工程教學</h2>
+</div>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- ========== Sidebar ========== -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <h2>軟體工程教學</h2>
+    <div class="subtitle">需求工程與系統塑模</div>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="#home" data-page="home">首頁</a></li>
+    <li class="group-header">互動教學</li>
+    <li><a href="#demo" data-page="demo">&#127828; 點餐系統 Demo</a></li>
+    <li class="group-header">Chapter 4 — 需求工程</li>
+    <li><a href="#ch4-1" data-page="ch4-1">4-1 功能需求 vs 非功能需求</a></li>
+    <li><a href="#ch4-2" data-page="ch4-2">4-2 需求抽取技術</a></li>
+    <li><a href="#ch4-3" data-page="ch4-3">4-3 需求規格制訂</a></li>
+    <li><a href="#ch4-4" data-page="ch4-4">4-4 Use Case 初探</a></li>
+    <li class="group-header">Chapter 5 — 系統塑模</li>
+    <li><a href="#ch5-1" data-page="ch5-1">5-1 環境模型與活動圖</a></li>
+    <li><a href="#ch5-2" data-page="ch5-2">5-2 Use Case 圖</a></li>
+    <li><a href="#ch5-3" data-page="ch5-3">5-3 序列圖</a></li>
+    <li><a href="#ch5-4" data-page="ch5-4">5-4 類別圖</a></li>
+    <li><a href="#ch5-5" data-page="ch5-5">5-5 狀態圖</a></li>
+    <li><a href="#ch5-6" data-page="ch5-6">5-6 MDA 三層模型</a></li>
+  </ul>
+</nav>
+
+<!-- ========== CONTENT ========== -->
+<main id="content">
+
+<!-- ==================== PAGE: HOME ==================== -->
+<section data-page="home" class="page active">
+  <div class="hero">
+    <span class="chapter-tag" style="background:rgba(255,255,255,0.15);color:#93C5FD;">教學網站</span>
+    <h1>需求工程與系統塑模</h1>
+    <p>以「線上點餐外送系統」為範例，帶你掌握軟體工程核心概念。<br>涵蓋 Chapter 4（需求工程）與 Chapter 5（系統塑模）完整內容。</p>
+  </div>
+
+  <div class="concept-block">
+    <h2><span class="icon">&#128218;</span> 課程說明</h2>
+    <p>本教學網站以一個<strong>貫穿全課程的範例系統</strong>，幫助你理解抽象的軟體工程概念。每個章節都會用同一個系統來示範，讓你看到需求如何一步步被定義、分析、塑模成具體的設計。</p>
+  </div>
+
+  <div class="example-block">
+    <h2><span class="icon">&#127828;</span> 範例系統：線上點餐外送平台</h2>
+    <p>想像一個類似 Uber Eats 或 foodpanda 的系統，具備以下情境：</p>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>顧客端</h3>
+        <p>瀏覽餐廳、搜尋餐點、加入購物車、下單、線上付款、追蹤外送進度、評價餐廳</p>
+      </div>
+      <div class="feature-card">
+        <h3>餐廳端</h3>
+        <p>管理菜單、接收訂單、更新製作狀態、查看營收報表、設定營業時間</p>
+      </div>
+      <div class="feature-card">
+        <h3>外送員端</h3>
+        <p>接受派單、導航取餐、確認送達、查看收入紀錄</p>
+      </div>
+      <div class="feature-card">
+        <h3>管理員端</h3>
+        <p>審核餐廳上架、處理客訴、管理使用者帳號、查看系統數據</p>
+      </div>
+    </div>
+    <div class="callout green">
+      <p><strong>為什麼選這個系統？</strong> 每位同學都用過外送平台，容易理解業務場景。而且這個系統有豐富的角色互動、清晰的狀態轉換、多樣的類別關係，非常適合用來學習所有 UML 圖。</p>
+    </div>
+  </div>
+
+  <div class="summary-block">
+    <h2><span class="icon">&#128220;</span> 章節總覽</h2>
+    <table class="styled-table">
+      <thead>
+        <tr><th>章節</th><th>主題</th><th>你會學到</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>4-1</td><td>功能需求 vs 非功能需求</td><td>區分系統該做什麼 vs 限制條件</td></tr>
+        <tr><td>4-2</td><td>需求抽取技術</td><td>訪談、民族誌法、故事與情境</td></tr>
+        <tr><td>4-3</td><td>需求規格制訂</td><td>自然語言 → 結構化規格</td></tr>
+        <tr><td>4-4</td><td>Use Case 初探</td><td>使用案例的基本觀念</td></tr>
+        <tr><td>5-1</td><td>環境模型與活動圖</td><td>系統邊界與業務流程</td></tr>
+        <tr><td>5-2</td><td>Use Case 圖</td><td>系統與使用者的互動全貌</td></tr>
+        <tr><td>5-3</td><td>序列圖</td><td>物件間訊息傳遞的時間順序</td></tr>
+        <tr><td>5-4</td><td>類別圖</td><td>系統結構與類別關係</td></tr>
+        <tr><td>5-5</td><td>狀態圖</td><td>系統狀態轉換與事件驅動</td></tr>
+        <tr><td>5-6</td><td>MDA 三層模型</td><td>模型驅動式架構</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="page-nav">
+    <span></span>
+    <a href="#ch4-1">開始學習 4-1 &#8594;</a>
+  </div>
+</section>
+
+<!-- ==================== PAGE: CH4-1 ==================== -->
+<section data-page="ch4-1" class="page">
+  <span class="chapter-tag">Chapter 4</span>
+  <h1>4-1 功能需求 vs 非功能需求</h1>
+
+  <div class="concept-block">
+    <h2><span class="icon">&#128218;</span> 概念說明</h2>
+    <p>系統的<strong>需求（Requirements）</strong>描述系統應提供的服務及其運作限制。需求通常分成兩大類：</p>
+    <ul>
+      <li><strong>功能需求（Functional Requirements）</strong>：系統「應該做什麼」，描述系統提供的服務、對特定輸入的反應、以及在特定情況下的行為。</li>
+      <li><strong>非功能需求（Non-functional Requirements）</strong>：系統提供服務的「限制條件」，通常與效能、安全性、可用性、可維護性等整體品質相關。</li>
+    </ul>
+    <div class="callout">
+      <p>非功能需求通常比個別功能需求更重要 — 如果非功能需求不符合，可能讓整個系統無法使用。</p>
+    </div>
+  </div>
+
+  <div class="example-block">
+    <h2><span class="icon">&#127828;</span> 點餐系統範例</h2>
+    <h3>功能需求範例</h3>
+    <table class="styled-table">
+      <thead><tr><th>編號</th><th>需求描述</th><th>角色</th></tr></thead>
+      <tbody>
+        <tr><td>FR-01</td><td>顧客必須能依餐廳名稱或菜色類別搜尋餐廳</td><td>顧客</td></tr>
+        <tr><td>FR-02</td><td>系統必須在顧客下單後自動通知餐廳</td><td>系統</td></tr>
+        <tr><td>FR-03</td><td>餐廳必須能更新菜單品項與價格</td><td>餐廳</td></tr>
+        <tr><td>FR-04</td><td>外送員必須能在 App 上查看取餐地址與送餐地址</td><td>外送員</td></tr>
+        <tr><td>FR-05</td><td>系統必須在訂單完成後讓顧客對餐廳評分（1-5 星）</td><td>顧客</td></tr>
+      </tbody>
+    </table>
+
+    <h3>非功能需求範例</h3>
+    <table class="styled-table">
+      <thead><tr><th>類別</th><th>需求描述</th><th>可測量指標</th></tr></thead>
+      <tbody>
+        <tr><td>效能</td><td>系統在午餐尖峰時段必須承受高負載</td><td>每秒處理 ≥ 1,000 筆並發請求</td></tr>
+        <tr><td>可靠性</td><td>系統必須保持高可用性</td><td>年可用率 ≥ 99.9%（停機 ≤ 8.76 小時/年）</td></tr>
+        <tr><td>安全性</td><td>付款資訊必須加密傳輸與儲存</td><td>符合 PCI DSS 標準</td></tr>
+        <tr><td>回應時間</td><td>搜尋結果必須快速回應</td><td>搜尋回應時間 ≤ 2 秒</td></tr>
+        <tr><td>可用性</td><td>新使用者必須能快速上手</td><td>首次使用者 5 分鐘內完成下單</td></tr>
+      </tbody>
+    </table>
+
+    <h3>非功能需求的三大來源</h3>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>產品需求</h3>
+        <p>來自產品本身的品質要求，例如：回應時間 ≤ 2 秒、App 大小 ≤ 100 MB</p>
+      </div>
+      <div class="feature-card">
+        <h3>組織需求</h3>
+        <p>來自公司政策與流程，例如：必須使用 Git 版本控制、每週發布一次更新</p>
+      </div>
+      <div class="feature-card">
+        <h3>外部需求</h3>
+        <p>來自法規或外部標準，例如：遵守個資法、符合食安法規</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-block">
+    <h2><span class="icon">&#128220;</span> 重點整理</h2>
+    <ul class="summary-list">
+      <li>功能需求描述系統「做什麼」，非功能需求描述系統「如何做」以及限制</li>
+      <li>非功能需求應該是<strong>可量測的</strong>，避免模糊的目標敘述（如「容易使用」）</li>
+      <li>非功能需求來自三大來源：產品、組織、外部</li>
+      <li>需求規格應具備<strong>完整性</strong>（涵蓋所有需要）與<strong>一致性</strong>（不互相矛盾）</li>
+      <li>使用者需求（高層描述）與系統需求（詳細規格）是不同層次</li>
+    </ul>
+  </div>
+
+  <div class="practice-block">
+    <h2><span class="icon">&#9998;</span> 練習題</h2>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">1</span>
+        <span>「系統應讓使用者能追蹤外送員的即時位置」是功能需求還是非功能需求？為什麼？</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <p>這是<strong>功能需求</strong>。它描述的是系統應該提供的一項具體服務（即時追蹤功能），而不是對服務品質的限制。</p>
+        <p>如果改成「即時位置更新的延遲不得超過 3 秒」，那就是非功能需求（效能限制）。</p>
+      </div>
+    </div>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">2</span>
+        <span>請將以下模糊的非功能需求改寫為可測量的版本：「系統應該很快」</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <p>改寫範例：</p>
+        <ul>
+          <li>「餐廳列表頁面的載入時間不得超過 1.5 秒」</li>
+          <li>「搜尋功能在 10,000 筆資料中的查詢回應時間 ≤ 500 毫秒」</li>
+          <li>「訂單提交後，系統確認回應時間 ≤ 2 秒（在 95% 的情況下）」</li>
+        </ul>
+        <p>關鍵在於用<strong>具體數字</strong>取代模糊形容詞，並指定<strong>測量條件</strong>。</p>
+      </div>
+    </div>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">3</span>
+        <span>「系統必須符合台灣個人資料保護法」屬於哪一種非功能需求來源？</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <p>屬於<strong>外部需求</strong>。這是來自系統外部的法律法規所衍生的需求，開發團隊必須確保系統合法運作。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="#home">&#8592; 首頁</a>
+    <a href="#ch4-2">4-2 需求抽取技術 &#8594;</a>
+  </div>
+</section>
+
+<!-- ==================== PAGE: CH4-2 ==================== -->
+<section data-page="ch4-2" class="page">
+  <span class="chapter-tag">Chapter 4</span>
+  <h1>4-2 需求抽取技術</h1>
+
+  <div class="concept-block">
+    <h2><span class="icon">&#128218;</span> 概念說明</h2>
+    <p><strong>需求抽取（Requirements Elicitation）</strong>是了解關係人的工作內容、以及他們如何使用新系統的程序。這個過程並不容易，因為：</p>
+    <ul>
+      <li>關係人經常不知道可以要求系統做什麼</li>
+      <li>不同關係人使用各自的術語與行話</li>
+      <li>不同關係人有不同（甚至衝突的）需求</li>
+      <li>政治因素與環境變動會影響需求</li>
+    </ul>
+    <p>需求抽取程序包含四個活動：<strong>發現需求</strong> → <strong>分類與組織</strong> → <strong>排列優先順序與協調</strong> → <strong>製作文件</strong>，不斷循環。</p>
+  </div>
+
+  <div class="example-block">
+    <h2><span class="icon">&#127828;</span> 點餐系統範例</h2>
+
+    <h3>技術一：訪談</h3>
+    <p>最常用的需求抽取方法，可分為<strong>限定訪談</strong>（事先定義好問題）與<strong>開放式訪談</strong>（自由討論）。</p>
+    <div class="info-card">
+      <p><strong>情境：</strong>訪談一位餐廳老闆</p>
+      <p><strong>限定訪談問題：</strong></p>
+      <ul>
+        <li>您目前接單到出餐的平均時間是多久？</li>
+        <li>您希望系統如何通知您有新訂單？</li>
+        <li>您需要什麼樣的營收報表？</li>
+      </ul>
+      <p><strong>開放式訪談發現：</strong></p>
+      <ul>
+        <li>老闆提到「尖峰時段常常漏單」 → 發現系統需要<strong>訂單提醒與逾時警告</strong>功能</li>
+        <li>老闆說「有些菜用完就沒了」 → 發現需要<strong>即時庫存管理</strong>功能（原本沒想到）</li>
+      </ul>
+    </div>
+    <div class="callout amber">
+      <p><strong>訪談的限制：</strong>領域專家可能覺得某些知識是「常識」而不會主動提起。例如餐廳老闆不會特別說「出餐要照順序」，但這對系統設計很重要。</p>
+    </div>
+
+    <h3>技術二：民族誌法</h3>
+    <p><strong>民族誌法（Ethnography）</strong>是觀察法 — 分析人員融入實際工作環境，觀察日常運作。</p>
+    <div class="info-card">
+      <p><strong>情境：</strong>分析人員在餐廳廚房觀察一整天</p>
+      <p><strong>觀察發現：</strong></p>
+      <ul>
+        <li>廚師看到訂單後會先分類（冷飲先做、熱食最後），不是照下單順序 → 系統需支援<strong>訂單分類排序</strong></li>
+        <li>外送員到了但餐還沒好，會佔用出餐區 → 需要<strong>餐點準備完成通知外送員</strong>功能</li>
+        <li>尖峰時段老闆會暫時關閉某些品項 → 需要<strong>暫停接單/暫停品項</strong>功能</li>
+      </ul>
+    </div>
+
+    <h3>技術三：故事與情境</h3>
+    <p>透過真實故事描述使用情境，讓所有人都能理解系統的使用方式。</p>
+    <div class="info-card">
+      <p><strong>情境：顧客下午茶訂餐</strong></p>
+      <table class="styled-table">
+        <tbody>
+          <tr><td style="width:120px;font-weight:600;">初始狀態</td><td>小明打開 App，已登入帳號，所在位置為學校宿舍</td></tr>
+          <tr><td style="font-weight:600;">正常流程</td><td>1. 系統依據 GPS 定位顯示附近餐廳<br>2. 小明選擇「好喝茶飲店」<br>3. 小明選擇珍珠奶茶（大杯、微糖、少冰）加入購物車<br>4. 小明確認訂單金額，選擇 Line Pay 付款<br>5. 系統建立訂單並通知餐廳<br>6. 小明在 App 追蹤訂單狀態</td></tr>
+          <tr><td style="font-weight:600;">可能問題</td><td>餐廳無法接單（已打烊）→ 系統提示「該餐廳目前未營業」<br>付款失敗 → 系統提示重試或更換付款方式</td></tr>
+          <tr><td style="font-weight:600;">其他活動</td><td>餐廳收到訂單後開始準備、系統同時尋找附近外送員</td></tr>
+          <tr><td style="font-weight:600;">完成狀態</td><td>外送員送達，小明確認收餐，系統請小明評價</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="summary-block">
+    <h2><span class="icon">&#128220;</span> 重點整理</h2>
+    <ul class="summary-list">
+      <li><strong>訪談</strong>是最基本的技術，結合限定與開放式效果最好</li>
+      <li><strong>民族誌法</strong>能發現訪談中遺漏的隱性需求，但耗時且不適合發現新功能</li>
+      <li><strong>故事與情境</strong>用具體例子描述使用流程，便於所有人理解</li>
+      <li>情境應包含：初始狀態、正常流程、可能問題、其他活動、完成狀態</li>
+      <li>需求抽取是反覆循環的過程，不是一次完成</li>
+    </ul>
+  </div>
+
+  <div class="practice-block">
+    <h2><span class="icon">&#9998;</span> 練習題</h2>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">1</span>
+        <span>如果你要為外送員設計需求，你會用哪種抽取技術？為什麼？</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <p>建議結合<strong>訪談</strong>和<strong>民族誌法</strong>：</p>
+        <ul>
+          <li>訪談外送員了解他們的痛點（如：找不到地址、等餐太久）</li>
+          <li>實際跟隨外送員工作一天（民族誌法），觀察他們在不同情境下的行為，例如下雨天、樓層不明確、電話聯繫不上顧客等</li>
+        </ul>
+        <p>民族誌法特別重要，因為外送員的工作環境複雜（在路上、不同餐廳、不同社區），訪談可能無法完整涵蓋。</p>
+      </div>
+    </div>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">2</span>
+        <span>請為「餐廳處理客訴退款」寫一個情境描述（包含五個要素）。</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <table class="styled-table">
+          <tbody>
+            <tr><td style="width:100px;font-weight:600;">初始狀態</td><td>顧客已收到餐點，發現品項與訂單不符</td></tr>
+            <tr><td style="font-weight:600;">正常流程</td><td>1. 顧客在 App 點選「訂單問題」<br>2. 選擇「餐點錯誤」並拍照上傳<br>3. 系統自動通知餐廳<br>4. 餐廳確認問題後選擇「同意退款」<br>5. 系統將款項退回顧客帳戶</td></tr>
+            <tr><td style="font-weight:600;">可能問題</td><td>餐廳不同意退款 → 轉交平台客服處理</td></tr>
+            <tr><td style="font-weight:600;">其他活動</td><td>系統記錄此筆客訴供後續分析</td></tr>
+            <tr><td style="font-weight:600;">完成狀態</td><td>退款完成，顧客收到退款通知</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="#ch4-1">&#8592; 4-1 功能需求</a>
+    <a href="#ch4-3">4-3 需求規格制訂 &#8594;</a>
+  </div>
+</section>
+
+<!-- ==================== PAGE: CH4-3 ==================== -->
+<section data-page="ch4-3" class="page">
+  <span class="chapter-tag">Chapter 4</span>
+  <h1>4-3 需求規格制訂</h1>
+
+  <div class="concept-block">
+    <h2><span class="icon">&#128218;</span> 概念說明</h2>
+    <p><strong>需求規格制訂（Requirements Specification）</strong>是將使用者需求與系統需求撰寫成正式文件的過程。常用的撰寫方式有：</p>
+    <ul>
+      <li><strong>自然語言</strong>：表達容易、通用，但容易模糊不清</li>
+      <li><strong>結構化自然語言</strong>：使用標準範本，減少模糊性</li>
+      <li><strong>表格與圖形</strong>：適合描述多種情況的對應處理</li>
+    </ul>
+    <div class="callout">
+      <p>需求規格的不精確會導致客戶與開發團隊的爭執。模棱兩可的需求，開發人員會朝容易實作的方向解讀，但這可能不是客戶想要的。</p>
+    </div>
+  </div>
+
+  <div class="example-block">
+    <h2><span class="icon">&#127828;</span> 點餐系統範例</h2>
+
+    <h3>自然語言需求（模糊版）</h3>
+    <div class="info-card">
+      <p>「系統應該讓使用者能搜尋餐廳。」</p>
+    </div>
+    <p>這個需求有什麼問題？搜尋的方式是什麼？可以搜名稱嗎？搜菜色呢？搜尋範圍呢？這些都沒有定義。</p>
+
+    <h3>結構化需求（清晰版）</h3>
+    <div class="info-card">
+      <table class="styled-table">
+        <tbody>
+          <tr><td style="width:120px;font-weight:600;">需求編號</td><td>FR-01</td></tr>
+          <tr><td style="font-weight:600;">功能描述</td><td>餐廳搜尋功能</td></tr>
+          <tr><td style="font-weight:600;">輸入</td><td>搜尋關鍵字（餐廳名稱、菜色名稱、菜系類別）、使用者 GPS 位置、搜尋半徑（預設 3 公里）</td></tr>
+          <tr><td style="font-weight:600;">輸入來源</td><td>顧客 App 介面</td></tr>
+          <tr><td style="font-weight:600;">輸出</td><td>符合條件的餐廳列表（含名稱、評分、距離、預估送達時間）</td></tr>
+          <tr><td style="font-weight:600;">輸出去向</td><td>顧客 App 搜尋結果頁面</td></tr>
+          <tr><td style="font-weight:600;">前置條件</td><td>顧客已登入且已授權定位</td></tr>
+          <tr><td style="font-weight:600;">後置條件</td><td>搜尋結果依距離排序，每頁顯示 20 筆</td></tr>
+          <tr><td style="font-weight:600;">副作用</td><td>系統記錄搜尋紀錄供推薦演算法使用</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>表格式需求：外送費計算</h3>
+    <p>當情況有多種條件時，表格特別有用：</p>
+    <table class="styled-table">
+      <thead>
+        <tr><th>訂單金額</th><th>距離</th><th>時段</th><th>外送費</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>≥ $300</td><td>≤ 3 km</td><td>一般</td><td>免運費</td></tr>
+        <tr><td>≥ $300</td><td>≤ 3 km</td><td>尖峰</td><td>$15</td></tr>
+        <tr><td>≥ $300</td><td>&gt; 3 km</td><td>一般</td><td>$10/km</td></tr>
+        <tr><td>&lt; $300</td><td>≤ 3 km</td><td>一般</td><td>$30</td></tr>
+        <tr><td>&lt; $300</td><td>&gt; 3 km</td><td>一般</td><td>$30 + $10/km</td></tr>
+        <tr><td>任何</td><td>任何</td><td>尖峰</td><td>上述費用 + $15</td></tr>
+      </tbody>
+    </table>
+
+    <h3>需求確認</h3>
+    <p>寫完需求規格後，必須透過以下方式確認：</p>
+    <ul>
+      <li><strong>有效性檢查</strong>：需求是否反映真正需要？</li>
+      <li><strong>一致性檢查</strong>：需求之間是否矛盾？</li>
+      <li><strong>完整性檢查</strong>：是否遺漏重要功能？</li>
+      <li><strong>實現性檢查</strong>：以現有技術是否能實作？</li>
+      <li><strong>可驗證性</strong>：需求寫法是否能被測試？</li>
+    </ul>
+  </div>
+
+  <div class="summary-block">
+    <h2><span class="icon">&#128220;</span> 重點整理</h2>
+    <ul class="summary-list">
+      <li>自然語言易懂但模糊，結構化範本能大幅降低歧義</li>
+      <li>結構化需求應包含：描述、輸入/輸出、前置/後置條件、副作用</li>
+      <li>多條件對應時使用<strong>表格</strong>最清楚</li>
+      <li>需求確認有五種檢查：有效性、一致性、完整性、實現性、可驗證性</li>
+      <li>需求會持續變更，要有<strong>需求變更管理</strong>程序（問題分析 → 影響評估 → 實作變更）</li>
+    </ul>
+  </div>
+
+  <div class="practice-block">
+    <h2><span class="icon">&#9998;</span> 練習題</h2>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">1</span>
+        <span>以下需求有什麼問題？「系統應支援多種付款方式」</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <p>問題是<strong>太模糊</strong>。「多種」是哪些？應改為結構化描述：</p>
+        <p>「系統應支援以下付款方式：(1) 信用卡（Visa/MasterCard/JCB）、(2) Line Pay、(3) 貨到付款（現金）。每種付款方式的交易確認時間不得超過 5 秒。」</p>
+      </div>
+    </div>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">2</span>
+        <span>請用結構化範本為「顧客取消訂單」功能撰寫需求規格。</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <table class="styled-table">
+          <tbody>
+            <tr><td style="width:120px;font-weight:600;">需求編號</td><td>FR-10</td></tr>
+            <tr><td style="font-weight:600;">功能描述</td><td>顧客取消訂單功能</td></tr>
+            <tr><td style="font-weight:600;">輸入</td><td>訂單編號、取消原因（選填）</td></tr>
+            <tr><td style="font-weight:600;">輸入來源</td><td>顧客 App 訂單詳情頁面</td></tr>
+            <tr><td style="font-weight:600;">輸出</td><td>取消確認通知、退款金額資訊</td></tr>
+            <tr><td style="font-weight:600;">輸出去向</td><td>顧客 App + 餐廳端通知</td></tr>
+            <tr><td style="font-weight:600;">前置條件</td><td>訂單狀態為「已下單」或「已接單」（餐廳尚未開始製作）</td></tr>
+            <tr><td style="font-weight:600;">後置條件</td><td>訂單狀態更新為「已取消」，款項依退款政策退回</td></tr>
+            <tr><td style="font-weight:600;">副作用</td><td>若已接單則通知餐廳停止製作</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="#ch4-2">&#8592; 4-2 需求抽取</a>
+    <a href="#ch4-4">4-4 Use Case 初探 &#8594;</a>
+  </div>
+</section>
+
+<!-- ==================== PAGE: CH4-4 ==================== -->
+<section data-page="ch4-4" class="page">
+  <span class="chapter-tag">Chapter 4</span>
+  <h1>4-4 Use Case 初探</h1>
+
+  <div class="concept-block">
+    <h2><span class="icon">&#128218;</span> 概念說明</h2>
+    <p><strong>使用案例（Use Case）</strong>是以圖形模型和結構化文字，描述使用者與系統互動的方式。它是 UML 的基本功能之一。</p>
+    <ul>
+      <li><strong>行動者（Actor）</strong>：與系統互動的人或外部系統，用人形符號表示</li>
+      <li><strong>使用案例</strong>：系統提供的一項功能，用橢圓表示</li>
+      <li>每個使用案例代表一個<strong>獨立的互動任務</strong></li>
+    </ul>
+    <p>Use Case 圖只是概述，通常還需要搭配<strong>文字描述</strong>或<strong>序列圖</strong>來補充細節。這部分會在 Chapter 5 詳細展開。</p>
+  </div>
+
+  <div class="example-block">
+    <h2><span class="icon">&#127828;</span> 點餐系統範例</h2>
+    <p>以下是點餐系統中「顧客」這個行動者的簡單 Use Case：</p>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 600 350" width="600">
+        <rect x="120" y="20" width="380" height="310" rx="10" fill="none" stroke="var(--svg-stroke)" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <text x="310" y="50" text-anchor="middle" class="uml-text-title">點餐外送系統</text>
+        <use href="#actor" x="20" y="100" width="40" height="60"/>
+        <text x="40" y="180" text-anchor="middle" class="uml-text" font-weight="600">顧客</text>
+        <ellipse cx="280" cy="100" rx="90" ry="25" class="uml-fill"/>
+        <text x="280" y="105" text-anchor="middle" class="uml-text">搜尋餐廳</text>
+        <ellipse cx="280" cy="170" rx="90" ry="25" class="uml-fill"/>
+        <text x="280" y="175" text-anchor="middle" class="uml-text">下單點餐</text>
+        <ellipse cx="280" cy="240" rx="90" ry="25" class="uml-fill"/>
+        <text x="280" y="245" text-anchor="middle" class="uml-text">追蹤訂單</text>
+        <ellipse cx="280" cy="305" rx="90" ry="25" class="uml-fill"/>
+        <text x="280" y="310" text-anchor="middle" class="uml-text">評價餐廳</text>
+        <line x1="60" y1="130" x2="190" y2="105" class="uml-line"/>
+        <line x1="60" y1="130" x2="190" y2="170" class="uml-line"/>
+        <line x1="60" y1="140" x2="190" y2="240" class="uml-line"/>
+        <line x1="60" y1="145" x2="190" y2="305" class="uml-line"/>
+      </svg>
+      <p class="diagram-caption">圖 4-1：顧客的 Use Case 圖（簡易版）</p>
+    </div>
+
+    <h3>Use Case 文字描述</h3>
+    <div class="info-card">
+      <table class="styled-table">
+        <tbody>
+          <tr><td style="width:120px;font-weight:600;">Use Case</td><td>下單點餐</td></tr>
+          <tr><td style="font-weight:600;">行動者</td><td>顧客</td></tr>
+          <tr><td style="font-weight:600;">前置條件</td><td>顧客已登入、已選擇餐廳</td></tr>
+          <tr><td style="font-weight:600;">主要流程</td><td>1. 顧客瀏覽菜單<br>2. 選擇餐點並設定客製化選項（甜度、冰量等）<br>3. 加入購物車<br>4. 確認訂單內容與金額<br>5. 選擇付款方式並完成付款<br>6. 系統建立訂單並通知餐廳</td></tr>
+          <tr><td style="font-weight:600;">替代流程</td><td>3a. 購物車已有其他餐廳品項 → 提示顧客是否清空<br>5a. 付款失敗 → 提示重試或更換方式</td></tr>
+          <tr><td style="font-weight:600;">後置條件</td><td>訂單成立，狀態為「已下單」</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="summary-block">
+    <h2><span class="icon">&#128220;</span> 重點整理</h2>
+    <ul class="summary-list">
+      <li>Use Case 用<strong>橢圓</strong>表示功能，<strong>人形</strong>表示行動者</li>
+      <li>每個 Use Case 代表一個獨立的使用者與系統的互動任務</li>
+      <li>Use Case 圖是概覽，需搭配文字描述補充細節</li>
+      <li>文字描述應包含：行動者、前置條件、主要流程、替代流程、後置條件</li>
+      <li>在 Chapter 5 會深入學習完整的 Use Case 圖（含多角色、Include/Extend 關係）</li>
+    </ul>
+  </div>
+
+  <div class="practice-block">
+    <h2><span class="icon">&#9998;</span> 練習題</h2>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">1</span>
+        <span>請列出點餐系統中「餐廳」這個行動者可能有的 3 個 Use Case。</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <ul>
+          <li><strong>管理菜單</strong>：新增、修改、刪除菜單品項</li>
+          <li><strong>處理訂單</strong>：接單、更新製作狀態、標記完成</li>
+          <li><strong>查看報表</strong>：查看每日/每月營收與訂單統計</li>
+        </ul>
+        <p>其他合理答案如「設定營業時間」、「回覆顧客評價」也可以。</p>
+      </div>
+    </div>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">2</span>
+        <span>「付款系統」算是行動者（Actor）嗎？為什麼？</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <p><strong>是的</strong>，外部付款系統（如 Line Pay API、信用卡閘道）可以是行動者。行動者不限於人，也包括與系統互動的<strong>外部系統</strong>或<strong>硬體裝置</strong>。</p>
+        <p>在 UML 中，雖然用人形符號表示，但它代表的是「與系統互動的外部實體」。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="#ch4-3">&#8592; 4-3 需求規格</a>
+    <a href="#ch5-1">5-1 環境模型與活動圖 &#8594;</a>
+  </div>
+</section>
+
+<!-- ==================== PAGE: CH5-1 ==================== -->
+<section data-page="ch5-1" class="page">
+  <span class="chapter-tag">Chapter 5</span>
+  <h1>5-1 環境模型與活動圖</h1>
+
+  <div class="concept-block">
+    <h2><span class="icon">&#128218;</span> 概念說明</h2>
+    <p><strong>系統塑模（System Modeling）</strong>是為系統開發各種抽象模型的程序。通常使用 UML 圖來表示。</p>
+    <p>塑模的第一步是決定<strong>系統邊界（Boundary）</strong>— 哪些功能在系統內，哪些在系統外。</p>
+    <p><strong>活動圖（Activity Diagram）</strong>描繪業務流程中的活動順序，可用水道（Swimlane）區分不同角色的職責。</p>
+    <p>活動圖的基本元素：</p>
+    <ul>
+      <li><strong>實心圓</strong>：活動開始</li>
+      <li><strong>圓角矩形</strong>：活動</li>
+      <li><strong>菱形</strong>：決策點</li>
+      <li><strong>箭頭</strong>：轉換線（流程方向）</li>
+      <li><strong>雙圓（牛眼）</strong>：活動結束</li>
+      <li><strong>水道</strong>：區分不同角色</li>
+    </ul>
+  </div>
+
+  <div class="example-block">
+    <h2><span class="icon">&#127828;</span> 點餐系統範例</h2>
+
+    <h3>環境模型：系統邊界</h3>
+    <div class="diagram-container">
+      <svg viewBox="0 0 700 320" width="700">
+        <rect x="200" y="60" width="300" height="200" rx="12" class="uml-fill" stroke-width="2"/>
+        <text x="350" y="95" text-anchor="middle" class="uml-text-title">點餐外送系統</text>
+        <text x="350" y="130" text-anchor="middle" class="uml-text-sm">訂單管理</text>
+        <text x="350" y="150" text-anchor="middle" class="uml-text-sm">餐廳管理</text>
+        <text x="350" y="170" text-anchor="middle" class="uml-text-sm">配送管理</text>
+        <text x="350" y="190" text-anchor="middle" class="uml-text-sm">付款處理</text>
+        <text x="350" y="210" text-anchor="middle" class="uml-text-sm">使用者管理</text>
+        <text x="350" y="230" text-anchor="middle" class="uml-text-sm">評價系統</text>
+        <!-- External entities -->
+        <rect x="20" y="80" width="110" height="40" rx="6" class="uml-fill-alt"/>
+        <text x="75" y="105" text-anchor="middle" class="uml-text">顧客 App</text>
+        <rect x="20" y="160" width="110" height="40" rx="6" class="uml-fill-alt"/>
+        <text x="75" y="185" text-anchor="middle" class="uml-text">餐廳 App</text>
+        <rect x="570" y="80" width="110" height="40" rx="6" class="uml-fill-warn"/>
+        <text x="625" y="105" text-anchor="middle" class="uml-text">付款閘道</text>
+        <rect x="570" y="160" width="110" height="40" rx="6" class="uml-fill-warn"/>
+        <text x="625" y="185" text-anchor="middle" class="uml-text">地圖 API</text>
+        <rect x="570" y="240" width="110" height="40" rx="6" class="uml-fill-warn"/>
+        <text x="625" y="265" text-anchor="middle" class="uml-text">推播服務</text>
+        <rect x="20" y="240" width="110" height="40" rx="6" class="uml-fill-alt"/>
+        <text x="75" y="265" text-anchor="middle" class="uml-text">外送員 App</text>
+        <line x1="130" y1="100" x2="200" y2="120" class="uml-line" marker-end="url(#arrow)"/>
+        <line x1="130" y1="180" x2="200" y2="160" class="uml-line" marker-end="url(#arrow)"/>
+        <line x1="130" y1="260" x2="200" y2="220" class="uml-line" marker-end="url(#arrow)"/>
+        <line x1="500" y1="120" x2="570" y2="100" class="uml-line" marker-end="url(#arrow)"/>
+        <line x1="500" y1="160" x2="570" y2="180" class="uml-line" marker-end="url(#arrow)"/>
+        <line x1="500" y1="220" x2="570" y2="260" class="uml-line" marker-end="url(#arrow)"/>
+      </svg>
+      <p class="diagram-caption">圖 5-1：點餐系統環境模型</p>
+    </div>
+
+    <h3>活動圖：顧客下單流程</h3>
+    <div class="diagram-container">
+      <svg viewBox="0 0 750 560" width="750">
+        <!-- Swimlanes -->
+        <rect x="10" y="10" width="240" height="540" fill="rgba(37,99,235,0.04)" stroke="var(--border)" stroke-width="1"/>
+        <rect x="250" y="10" width="240" height="540" fill="rgba(5,150,105,0.04)" stroke="var(--border)" stroke-width="1"/>
+        <rect x="490" y="10" width="240" height="540" fill="rgba(217,119,6,0.04)" stroke="var(--border)" stroke-width="1"/>
+        <text x="130" y="35" text-anchor="middle" class="uml-text-title" fill="var(--primary)">顧客</text>
+        <text x="370" y="35" text-anchor="middle" class="uml-text-title" fill="var(--green)">系統</text>
+        <text x="610" y="35" text-anchor="middle" class="uml-text-title" fill="var(--amber)">餐廳</text>
+
+        <!-- Start -->
+        <circle cx="130" cy="65" r="10" fill="var(--svg-stroke)"/>
+        <line x1="130" y1="75" x2="130" y2="95" class="uml-line" marker-end="url(#arrow)"/>
+
+        <!-- Activity: Browse -->
+        <rect x="50" y="95" width="160" height="36" rx="18" class="uml-fill"/>
+        <text x="130" y="118" text-anchor="middle" class="uml-text">瀏覽餐廳與菜單</text>
+        <line x1="130" y1="131" x2="130" y2="155" class="uml-line" marker-end="url(#arrow)"/>
+
+        <!-- Activity: Add to cart -->
+        <rect x="50" y="155" width="160" height="36" rx="18" class="uml-fill"/>
+        <text x="130" y="178" text-anchor="middle" class="uml-text">選擇餐點加入購物車</text>
+        <line x1="130" y1="191" x2="130" y2="215" class="uml-line" marker-end="url(#arrow)"/>
+
+        <!-- Activity: Confirm -->
+        <rect x="50" y="215" width="160" height="36" rx="18" class="uml-fill"/>
+        <text x="130" y="238" text-anchor="middle" class="uml-text">確認訂單與付款</text>
+        <line x1="210" y1="233" x2="290" y2="233" class="uml-line" marker-end="url(#arrow)"/>
+
+        <!-- System: Validate -->
+        <rect x="290" y="215" width="160" height="36" rx="18" class="uml-fill-alt"/>
+        <text x="370" y="238" text-anchor="middle" class="uml-text">驗證付款</text>
+
+        <!-- Decision diamond -->
+        <line x1="370" y1="251" x2="370" y2="275" class="uml-line" marker-end="url(#arrow)"/>
+        <polygon points="370,275 395,300 370,325 345,300" fill="#fff" stroke="var(--svg-stroke)" stroke-width="1.5"/>
+
+        <!-- Success path: diamond → down → 建立訂單 -->
+        <line x1="370" y1="325" x2="370" y2="365" class="uml-line" marker-end="url(#arrow)"/>
+        <text x="390" y="348" class="uml-text-sm" fill="var(--green)">成功</text>
+        <rect x="290" y="365" width="160" height="36" rx="18" class="uml-fill-alt"/>
+        <text x="370" y="388" text-anchor="middle" class="uml-text">建立訂單</text>
+
+        <!-- 建立訂單 → 接收訂單 -->
+        <line x1="450" y1="383" x2="530" y2="383" class="uml-line" marker-end="url(#arrow)"/>
+
+        <!-- Fail path: diamond → left → back up to 確認訂單 -->
+        <line x1="345" y1="300" x2="30" y2="300" class="uml-line"/>
+        <text x="265" y="293" text-anchor="middle" class="uml-text-sm" fill="var(--red)">失敗</text>
+        <line x1="30" y1="300" x2="30" y2="233" class="uml-line"/>
+        <line x1="30" y1="233" x2="50" y2="233" class="uml-line" marker-end="url(#arrow)"/>
+
+        <!-- Restaurant: Receive -->
+        <rect x="530" y="365" width="160" height="36" rx="18" class="uml-fill-warn"/>
+        <text x="610" y="388" text-anchor="middle" class="uml-text">接收訂單</text>
+        <line x1="610" y1="401" x2="610" y2="430" class="uml-line" marker-end="url(#arrow)"/>
+
+        <!-- Restaurant: Prepare -->
+        <rect x="530" y="430" width="160" height="36" rx="18" class="uml-fill-warn"/>
+        <text x="610" y="453" text-anchor="middle" class="uml-text">製作餐點</text>
+        <line x1="610" y1="466" x2="610" y2="500" class="uml-line" marker-end="url(#arrow)"/>
+
+        <!-- End -->
+        <circle cx="610" cy="510" r="10" fill="none" stroke="var(--svg-stroke)" stroke-width="2"/>
+        <circle cx="610" cy="510" r="6" fill="var(--svg-stroke)"/>
+      </svg>
+      <p class="diagram-caption">圖 5-2：顧客下單活動圖（含水道）</p>
+    </div>
+  </div>
+
+  <div class="summary-block">
+    <h2><span class="icon">&#128220;</span> 重點整理</h2>
+    <ul class="summary-list">
+      <li>系統塑模的第一步是定義<strong>系統邊界</strong>，區分系統內外</li>
+      <li>環境模型顯示系統與外部實體的關係</li>
+      <li>活動圖描繪業務流程的活動順序</li>
+      <li><strong>水道（Swimlane）</strong>可將活動依角色分組</li>
+      <li>菱形代表決策點，可以分出不同流程路徑</li>
+    </ul>
+  </div>
+
+  <div class="practice-block">
+    <h2><span class="icon">&#9998;</span> 練習題</h2>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">1</span>
+        <span>在環境模型中，「Google Maps API」應該放在系統邊界的內部還是外部？為什麼？</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <p><strong>外部</strong>。Google Maps API 是第三方服務，不是我們開發的系統的一部分。系統會呼叫它來取得地圖和路線資訊，但它本身在系統邊界之外。</p>
+      </div>
+    </div>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">2</span>
+        <span>請列出活動圖中的六種基本元素，並各說明用途。</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <ul>
+          <li><strong>實心圓</strong>：起始節點，代表流程的開始</li>
+          <li><strong>圓角矩形</strong>：活動節點，代表一個動作或工作</li>
+          <li><strong>菱形</strong>：決策節點，根據條件分支流程</li>
+          <li><strong>箭頭（轉換線）</strong>：連接活動，表示流程方向</li>
+          <li><strong>牛眼（雙圓）</strong>：結束節點，代表流程終止</li>
+          <li><strong>水道</strong>：將活動分組到不同的角色或系統</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="#ch4-4">&#8592; 4-4 Use Case 初探</a>
+    <a href="#ch5-2">5-2 Use Case 圖 &#8594;</a>
+  </div>
+</section>
+
+<!-- ==================== PAGE: CH5-2 ==================== -->
+<section data-page="ch5-2" class="page">
+  <span class="chapter-tag">Chapter 5</span>
+  <h1>5-2 Use Case 圖</h1>
+
+  <div class="concept-block">
+    <h2><span class="icon">&#128218;</span> 概念說明</h2>
+    <p><strong>Use Case 圖</strong>描繪系統與外部行動者之間所有的互動情形。它是系統功能的「全景圖」。</p>
+    <p>除了基本的行動者與使用案例之外，Use Case 之間還有兩種重要關係：</p>
+    <ul>
+      <li><strong>&laquo;include&raquo;</strong>：某個 Use Case 一定會包含另一個 Use Case（必要的子流程）</li>
+      <li><strong>&laquo;extend&raquo;</strong>：某個 Use Case 在特定條件下才會擴展另一個 Use Case（選擇性的額外行為）</li>
+    </ul>
+  </div>
+
+  <div class="example-block">
+    <h2><span class="icon">&#127828;</span> 點餐系統完整 Use Case 圖</h2>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 800 550" width="800">
+        <!-- System boundary -->
+        <rect x="140" y="15" width="520" height="520" rx="12" fill="none" stroke="var(--svg-stroke)" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <text x="400" y="45" text-anchor="middle" class="uml-text-title">點餐外送系統</text>
+
+        <!-- Actors -->
+        <use href="#actor" x="15" y="60" width="35" height="52"/>
+        <text x="33" y="128" text-anchor="middle" class="uml-text" font-weight="600">顧客</text>
+
+        <use href="#actor" x="15" y="280" width="35" height="52"/>
+        <text x="33" y="348" text-anchor="middle" class="uml-text" font-weight="600">外送員</text>
+
+        <use href="#actor" x="735" y="60" width="35" height="52"/>
+        <text x="753" y="128" text-anchor="middle" class="uml-text" font-weight="600">餐廳</text>
+
+        <use href="#actor" x="735" y="300" width="35" height="52"/>
+        <text x="753" y="368" text-anchor="middle" class="uml-text" font-weight="600">管理員</text>
+
+        <!-- Use Cases -->
+        <ellipse cx="300" cy="90" rx="80" ry="22" class="uml-fill"/>
+        <text x="300" y="95" text-anchor="middle" class="uml-text">搜尋餐廳</text>
+
+        <ellipse cx="300" cy="155" rx="80" ry="22" class="uml-fill"/>
+        <text x="300" y="160" text-anchor="middle" class="uml-text">下單點餐</text>
+
+        <ellipse cx="300" cy="220" rx="80" ry="22" class="uml-fill"/>
+        <text x="300" y="225" text-anchor="middle" class="uml-text">線上付款</text>
+
+        <ellipse cx="300" cy="285" rx="80" ry="22" class="uml-fill"/>
+        <text x="300" y="290" text-anchor="middle" class="uml-text">追蹤訂單</text>
+
+        <ellipse cx="300" cy="350" rx="80" ry="22" class="uml-fill"/>
+        <text x="300" y="355" text-anchor="middle" class="uml-text">評價餐廳</text>
+
+        <ellipse cx="530" cy="90" rx="80" ry="22" class="uml-fill-alt"/>
+        <text x="530" y="95" text-anchor="middle" class="uml-text">管理菜單</text>
+
+        <ellipse cx="530" cy="155" rx="80" ry="22" class="uml-fill-alt"/>
+        <text x="530" y="160" text-anchor="middle" class="uml-text">處理訂單</text>
+
+        <ellipse cx="530" cy="220" rx="80" ry="22" class="uml-fill-alt"/>
+        <text x="530" y="225" text-anchor="middle" class="uml-text">查看報表</text>
+
+        <ellipse cx="300" cy="430" rx="80" ry="22" class="uml-fill-warn"/>
+        <text x="300" y="435" text-anchor="middle" class="uml-text">接受派單</text>
+
+        <ellipse cx="300" cy="490" rx="80" ry="22" class="uml-fill-warn"/>
+        <text x="300" y="495" text-anchor="middle" class="uml-text">確認送達</text>
+
+        <ellipse cx="530" cy="340" rx="80" ry="22" class="uml-fill-purple"/>
+        <text x="530" y="345" text-anchor="middle" class="uml-text">管理帳號</text>
+
+        <ellipse cx="530" cy="410" rx="80" ry="22" class="uml-fill-purple"/>
+        <text x="530" y="415" text-anchor="middle" class="uml-text">處理客訴</text>
+
+        <ellipse cx="530" cy="480" rx="80" ry="22" class="uml-fill-purple"/>
+        <text x="530" y="485" text-anchor="middle" class="uml-text">審核餐廳</text>
+
+        <!-- Customer lines -->
+        <line x1="50" y1="90" x2="220" y2="90" class="uml-line"/>
+        <line x1="50" y1="90" x2="220" y2="155" class="uml-line"/>
+        <line x1="50" y1="95" x2="220" y2="285" class="uml-line"/>
+        <line x1="50" y1="95" x2="220" y2="350" class="uml-line"/>
+
+        <!-- include: order includes payment -->
+        <line x1="300" y1="177" x2="300" y2="198" class="uml-line-dashed" marker-end="url(#arrow)"/>
+        <text x="340" y="192" class="uml-text-sm" fill="var(--primary)">&laquo;include&raquo;</text>
+
+        <!-- Driver lines -->
+        <line x1="50" y1="310" x2="220" y2="285" class="uml-line"/>
+        <line x1="50" y1="310" x2="220" y2="430" class="uml-line"/>
+        <line x1="50" y1="320" x2="220" y2="490" class="uml-line"/>
+
+        <!-- Restaurant lines -->
+        <line x1="735" y1="90" x2="610" y2="90" class="uml-line"/>
+        <line x1="735" y1="90" x2="610" y2="155" class="uml-line"/>
+        <line x1="735" y1="95" x2="610" y2="220" class="uml-line"/>
+
+        <!-- Admin lines -->
+        <line x1="735" y1="330" x2="610" y2="340" class="uml-line"/>
+        <line x1="735" y1="340" x2="610" y2="410" class="uml-line"/>
+        <line x1="735" y1="340" x2="610" y2="480" class="uml-line"/>
+      </svg>
+      <p class="diagram-caption">圖 5-3：點餐系統完整 Use Case 圖</p>
+    </div>
+
+    <div class="callout green">
+      <p><strong>&laquo;include&raquo; 範例：</strong>「下單點餐」一定會包含「線上付款」，因為每筆訂單都必須付款。</p>
+      <p><strong>&laquo;extend&raquo; 範例：</strong>「下單點餐」可能被「使用優惠券」擴展，但不是每次下單都會使用優惠券。</p>
+    </div>
+  </div>
+
+  <div class="summary-block">
+    <h2><span class="icon">&#128220;</span> 重點整理</h2>
+    <ul class="summary-list">
+      <li>Use Case 圖是系統功能的全景圖，展示所有角色與功能的關係</li>
+      <li><strong>&laquo;include&raquo;</strong>：必要的子流程（虛線箭頭，從主 Use Case 指向被包含者）</li>
+      <li><strong>&laquo;extend&raquo;</strong>：選擇性的擴展（虛線箭頭，從擴展者指向主 Use Case）</li>
+      <li>行動者可以是人，也可以是外部系統</li>
+      <li>系統邊界用虛線矩形框住所有 Use Case</li>
+    </ul>
+  </div>
+
+  <div class="practice-block">
+    <h2><span class="icon">&#9998;</span> 練習題</h2>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">1</span>
+        <span>「顧客登入」與「下單點餐」之間是 include 還是 extend 關係？</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <p>是 <strong>&laquo;include&raquo;</strong> 關係。下單前必須先登入，這是必要的前置步驟。「下單點餐」include「顧客登入」。</p>
+      </div>
+    </div>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">2</span>
+        <span>請舉一個點餐系統中 extend 關係的例子，並說明為什麼是 extend 而非 include。</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <p><strong>「加購推薦」extend「下單點餐」</strong></p>
+        <p>理由：不是每次下單都會觸發加購推薦，只有當系統判斷有合適的推薦品項時才會出現。這是選擇性行為，所以用 extend 而非 include。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="#ch5-1">&#8592; 5-1 環境模型</a>
+    <a href="#ch5-3">5-3 序列圖 &#8594;</a>
+  </div>
+</section>
+
+<!-- ==================== PAGE: CH5-3 ==================== -->
+<section data-page="ch5-3" class="page">
+  <span class="chapter-tag">Chapter 5</span>
+  <h1>5-3 序列圖</h1>
+
+  <div class="concept-block">
+    <h2><span class="icon">&#128218;</span> 概念說明</h2>
+    <p><strong>序列圖（Sequence Diagram）</strong>描述行動者與系統物件之間，以及物件彼此之間的互動順序。</p>
+    <p>序列圖有兩個軸：</p>
+    <ul>
+      <li><strong>水平軸</strong>：參與互動的物件（由左到右排列在頂端）</li>
+      <li><strong>垂直軸</strong>：時間順序（由上到下代表時間流逝）</li>
+    </ul>
+    <p>基本元素：</p>
+    <ul>
+      <li><strong>生命線</strong>：物件下方的垂直虛線</li>
+      <li><strong>實線箭頭</strong>：請求訊息（呼叫）</li>
+      <li><strong>虛線箭頭</strong>：回傳訊息</li>
+      <li><strong>活化框</strong>：物件正在處理的時間段（生命線上的長方形）</li>
+    </ul>
+  </div>
+
+  <div class="example-block">
+    <h2><span class="icon">&#127828;</span> 點餐系統範例：下單流程序列圖</h2>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 800 550" width="800">
+        <!-- Objects -->
+        <rect x="30" y="10" width="80" height="35" rx="4" class="uml-fill"/>
+        <text x="70" y="33" text-anchor="middle" class="uml-text" font-weight="600">顧客</text>
+        <rect x="170" y="10" width="90" height="35" rx="4" class="uml-fill"/>
+        <text x="215" y="33" text-anchor="middle" class="uml-text" font-weight="600">顧客 App</text>
+        <rect x="330" y="10" width="90" height="35" rx="4" class="uml-fill-alt"/>
+        <text x="375" y="33" text-anchor="middle" class="uml-text" font-weight="600">訂單系統</text>
+        <rect x="490" y="10" width="90" height="35" rx="4" class="uml-fill-warn"/>
+        <text x="535" y="33" text-anchor="middle" class="uml-text" font-weight="600">付款系統</text>
+        <rect x="650" y="10" width="90" height="35" rx="4" class="uml-fill-purple"/>
+        <text x="695" y="33" text-anchor="middle" class="uml-text" font-weight="600">餐廳 App</text>
+
+        <!-- Lifelines -->
+        <line x1="70" y1="45" x2="70" y2="530" class="uml-line-dashed"/>
+        <line x1="215" y1="45" x2="215" y2="530" class="uml-line-dashed"/>
+        <line x1="375" y1="45" x2="375" y2="530" class="uml-line-dashed"/>
+        <line x1="535" y1="45" x2="535" y2="530" class="uml-line-dashed"/>
+        <line x1="695" y1="45" x2="695" y2="530" class="uml-line-dashed"/>
+
+        <!-- Activation boxes -->
+        <rect x="65" y="70" width="10" height="440" fill="var(--primary-light)" stroke="var(--svg-stroke)" stroke-width="1"/>
+        <rect x="210" y="80" width="10" height="420" fill="var(--primary-light)" stroke="var(--svg-stroke)" stroke-width="1"/>
+        <rect x="370" y="160" width="10" height="330" fill="var(--green-bg)" stroke="var(--svg-stroke)" stroke-width="1"/>
+        <rect x="530" y="230" width="10" height="100" fill="var(--amber-bg)" stroke="var(--svg-stroke)" stroke-width="1"/>
+        <rect x="690" y="400" width="10" height="80" fill="var(--purple-bg)" stroke="var(--svg-stroke)" stroke-width="1"/>
+
+        <!-- Messages -->
+        <!-- 1. Select items -->
+        <line x1="75" y1="90" x2="210" y2="90" class="uml-line" marker-end="url(#arrow)"/>
+        <text x="143" y="83" text-anchor="middle" class="uml-text-sm">1. 選擇餐點</text>
+
+        <!-- 2. Show cart -->
+        <line x1="210" y1="120" x2="75" y2="120" class="uml-line-dashed" marker-end="url(#arrow-open)"/>
+        <text x="143" y="113" text-anchor="middle" class="uml-text-sm">2. 顯示購物車</text>
+
+        <!-- 3. Confirm order -->
+        <line x1="75" y1="160" x2="210" y2="160" class="uml-line" marker-end="url(#arrow)"/>
+        <text x="143" y="153" text-anchor="middle" class="uml-text-sm">3. 確認下單</text>
+
+        <!-- 4. Create order -->
+        <line x1="220" y1="190" x2="370" y2="190" class="uml-line" marker-end="url(#arrow)"/>
+        <text x="295" y="183" text-anchor="middle" class="uml-text-sm">4. 建立訂單(品項, 地址)</text>
+
+        <!-- 5. Return order ID -->
+        <line x1="370" y1="220" x2="220" y2="220" class="uml-line-dashed" marker-end="url(#arrow-open)"/>
+        <text x="295" y="213" text-anchor="middle" class="uml-text-sm">5. 回傳訂單編號</text>
+
+        <!-- 6. Process payment -->
+        <line x1="380" y1="250" x2="530" y2="250" class="uml-line" marker-end="url(#arrow)"/>
+        <text x="455" y="243" text-anchor="middle" class="uml-text-sm">6. 處理付款(金額)</text>
+
+        <!-- 7. Payment result -->
+        <line x1="530" y1="310" x2="380" y2="310" class="uml-line-dashed" marker-end="url(#arrow-open)"/>
+        <text x="455" y="303" text-anchor="middle" class="uml-text-sm">7. 付款結果(成功)</text>
+
+        <!-- 8. Update status -->
+        <line x1="375" y1="350" x2="375" y2="365" class="uml-line" marker-end="url(#arrow)"/>
+        <text x="430" y="358" class="uml-text-sm">8. 更新訂單狀態</text>
+
+        <!-- 9. Payment confirmation -->
+        <line x1="370" y1="385" x2="220" y2="385" class="uml-line-dashed" marker-end="url(#arrow-open)"/>
+        <text x="295" y="378" text-anchor="middle" class="uml-text-sm">9. 付款成功通知</text>
+
+        <!-- 10. Notify restaurant -->
+        <line x1="380" y1="420" x2="690" y2="420" class="uml-line" marker-end="url(#arrow)"/>
+        <text x="535" y="413" text-anchor="middle" class="uml-text-sm">10. 通知新訂單(訂單詳情)</text>
+
+        <!-- 11. Accept order -->
+        <line x1="690" y1="460" x2="380" y2="460" class="uml-line-dashed" marker-end="url(#arrow-open)"/>
+        <text x="535" y="453" text-anchor="middle" class="uml-text-sm">11. 接單確認</text>
+
+        <!-- 12. Notify customer -->
+        <line x1="370" y1="490" x2="220" y2="490" class="uml-line-dashed" marker-end="url(#arrow-open)"/>
+        <text x="295" y="483" text-anchor="middle" class="uml-text-sm">12. 餐廳已接單</text>
+      </svg>
+      <p class="diagram-caption">圖 5-4：下單流程序列圖</p>
+    </div>
+
+    <div class="callout">
+      <p><strong>閱讀方式：</strong>由上到下看，可以清楚知道每個步驟的順序、誰呼叫誰、以及資料如何傳遞。實線代表請求，虛線代表回應。</p>
+    </div>
+  </div>
+
+  <div class="summary-block">
+    <h2><span class="icon">&#128220;</span> 重點整理</h2>
+    <ul class="summary-list">
+      <li>序列圖展示<strong>時間順序</strong>的物件互動</li>
+      <li>水平軸排列物件，垂直軸代表時間流逝</li>
+      <li>實線箭頭 = 請求訊息，虛線箭頭 = 回傳訊息</li>
+      <li>活化框（長方形）代表物件正在處理中的時段</li>
+      <li>適合描述單一 Use Case 的詳細互動流程</li>
+    </ul>
+  </div>
+
+  <div class="practice-block">
+    <h2><span class="icon">&#9998;</span> 練習題</h2>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">1</span>
+        <span>在上面的序列圖中，如果付款失敗，接下來的互動流程會怎麼變化？</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <p>步驟 7 回傳「付款失敗」後：</p>
+        <ul>
+          <li>訂單系統將訂單狀態更新為「付款失敗」</li>
+          <li>訂單系統通知顧客 App「付款失敗，請重試」</li>
+          <li>顧客 App 顯示錯誤訊息給顧客</li>
+          <li>步驟 10-12 不會執行（餐廳不會收到通知）</li>
+        </ul>
+        <p>整個流程在付款系統回傳失敗後就走另一條路徑。</p>
+      </div>
+    </div>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">2</span>
+        <span>序列圖和活動圖的主要差異是什麼？各適合用在什麼情境？</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <table class="styled-table">
+          <thead><tr><th>比較項目</th><th>序列圖</th><th>活動圖</th></tr></thead>
+          <tbody>
+            <tr><td>焦點</td><td>物件之間的訊息傳遞順序</td><td>活動的流程與分支</td></tr>
+            <tr><td>時間</td><td>明確呈現時間順序</td><td>只呈現流程順序</td></tr>
+            <tr><td>適合情境</td><td>描述單一 Use Case 的詳細互動</td><td>描述業務流程全貌</td></tr>
+            <tr><td>角色呈現</td><td>具體的物件/元件</td><td>用水道區分角色</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="#ch5-2">&#8592; 5-2 Use Case 圖</a>
+    <a href="#ch5-4">5-4 類別圖 &#8594;</a>
+  </div>
+</section>
+
+<!-- ==================== PAGE: CH5-4 ==================== -->
+<section data-page="ch5-4" class="page">
+  <span class="chapter-tag">Chapter 5</span>
+  <h1>5-4 類別圖</h1>
+
+  <div class="concept-block">
+    <h2><span class="icon">&#128218;</span> 概念說明</h2>
+    <p><strong>類別圖（Class Diagram）</strong>是結構模型，描繪系統中的物件類別及其關係。類別包含三個區塊：</p>
+    <ul>
+      <li><strong>類別名稱</strong>（頂部）</li>
+      <li><strong>屬性</strong>（中間）</li>
+      <li><strong>操作/方法</strong>（底部）</li>
+    </ul>
+    <h3>類別之間的四種關係</h3>
+    <table class="styled-table">
+      <thead><tr><th>關係</th><th>符號</th><th>意義</th><th>範例</th></tr></thead>
+      <tbody>
+        <tr><td>關聯（Association）</td><td>實線</td><td>兩個類別互相知道對方</td><td>顧客 — 訂單</td></tr>
+        <tr><td>繼承（Inheritance）</td><td>空心三角箭頭</td><td>子類別繼承父類別的屬性和方法</td><td>食物、飲料 → 菜單品項</td></tr>
+        <tr><td>聚合（Aggregation）</td><td>空心菱形</td><td>整體包含部分，部分可獨立存在</td><td>餐廳 ◇— 外送員</td></tr>
+        <tr><td>組合（Composition）</td><td>實心菱形</td><td>整體包含部分，部分不可獨立存在</td><td>訂單 ◆— 訂單品項</td></tr>
+      </tbody>
+    </table>
+
+    <h3>多重性（Multiplicity）</h3>
+    <table class="styled-table">
+      <thead><tr><th>標記</th><th>意義</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>恰好一個</td></tr>
+        <tr><td>0..1</td><td>零或一個</td></tr>
+        <tr><td>*</td><td>零或多個</td></tr>
+        <tr><td>1..*</td><td>一或多個</td></tr>
+        <tr><td>3..5</td><td>三到五個</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="example-block">
+    <h2><span class="icon">&#127828;</span> 點餐系統類別圖</h2>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 820 620" width="820">
+        <!-- Class: Customer -->
+        <rect x="20" y="20" width="170" height="120" class="uml-fill" rx="4"/>
+        <text x="105" y="45" text-anchor="middle" class="uml-text-title">顧客</text>
+        <line x1="20" y1="55" x2="190" y2="55" class="uml-line"/>
+        <text x="30" y="75" class="uml-text-sm">- 姓名: 字串</text>
+        <text x="30" y="92" class="uml-text-sm">- 電話: 字串</text>
+        <text x="30" y="109" class="uml-text-sm">- 地址: 字串</text>
+        <line x1="20" y1="115" x2="190" y2="115" class="uml-line"/>
+        <text x="30" y="135" class="uml-text-sm">+ 下單()</text>
+
+        <!-- Class: Order -->
+        <rect x="300" y="20" width="200" height="150" class="uml-fill" rx="4"/>
+        <text x="400" y="45" text-anchor="middle" class="uml-text-title">訂單</text>
+        <line x1="300" y1="55" x2="500" y2="55" class="uml-line"/>
+        <text x="310" y="75" class="uml-text-sm">- 訂單編號: 字串</text>
+        <text x="310" y="92" class="uml-text-sm">- 下單時間: 日期時間</text>
+        <text x="310" y="109" class="uml-text-sm">- 狀態: 訂單狀態</text>
+        <text x="310" y="126" class="uml-text-sm">- 總金額: 數值</text>
+        <line x1="300" y1="135" x2="500" y2="135" class="uml-line"/>
+        <text x="310" y="155" class="uml-text-sm">+ 取消訂單()</text>
+        <text x="310" y="167" class="uml-text-sm">+ 計算總額()</text>
+
+        <!-- Class: OrderItem -->
+        <rect x="300" y="250" width="200" height="130" class="uml-fill" rx="4"/>
+        <text x="400" y="275" text-anchor="middle" class="uml-text-title">訂單品項</text>
+        <line x1="300" y1="285" x2="500" y2="285" class="uml-line"/>
+        <text x="310" y="305" class="uml-text-sm">- 數量: 整數</text>
+        <text x="310" y="322" class="uml-text-sm">- 單價: 數值</text>
+        <text x="310" y="339" class="uml-text-sm">- 客製化備註: 字串</text>
+        <line x1="300" y1="350" x2="500" y2="350" class="uml-line"/>
+        <text x="310" y="370" class="uml-text-sm">+ 小計()</text>
+
+        <!-- Class: MenuItem (parent) -->
+        <rect x="580" y="250" width="200" height="130" class="uml-fill-alt" rx="4"/>
+        <text x="680" y="275" text-anchor="middle" class="uml-text-title">菜單品項</text>
+        <line x1="580" y1="285" x2="780" y2="285" class="uml-line"/>
+        <text x="590" y="305" class="uml-text-sm">- 品名: 字串</text>
+        <text x="590" y="322" class="uml-text-sm">- 價格: 數值</text>
+        <text x="590" y="339" class="uml-text-sm">- 描述: 字串</text>
+        <line x1="580" y1="350" x2="780" y2="350" class="uml-line"/>
+        <text x="590" y="370" class="uml-text-sm">+ 是否可供應(): 布林</text>
+
+        <!-- Subclass: Food -->
+        <rect x="560" y="460" width="120" height="80" class="uml-fill-alt" rx="4"/>
+        <text x="620" y="485" text-anchor="middle" class="uml-text-title">食物</text>
+        <line x1="560" y1="495" x2="680" y2="495" class="uml-line"/>
+        <text x="570" y="515" class="uml-text-sm">- 烹飪時間: 整數</text>
+        <line x1="560" y1="520" x2="680" y2="520" class="uml-line"/>
+        <text x="570" y="537" class="uml-text-sm">+ 預估完成()</text>
+
+        <!-- Subclass: Drink -->
+        <rect x="700" y="460" width="120" height="80" class="uml-fill-alt" rx="4"/>
+        <text x="760" y="485" text-anchor="middle" class="uml-text-title">飲料</text>
+        <line x1="700" y1="495" x2="820" y2="495" class="uml-line"/>
+        <text x="710" y="515" class="uml-text-sm">- 甜度: 字串</text>
+        <text x="710" y="530" class="uml-text-sm">- 冰量: 字串</text>
+
+        <!-- Class: Restaurant -->
+        <rect x="580" y="20" width="200" height="130" class="uml-fill-warn" rx="4"/>
+        <text x="680" y="45" text-anchor="middle" class="uml-text-title">餐廳</text>
+        <line x1="580" y1="55" x2="780" y2="55" class="uml-line"/>
+        <text x="590" y="75" class="uml-text-sm">- 餐廳名稱: 字串</text>
+        <text x="590" y="92" class="uml-text-sm">- 地址: 字串</text>
+        <text x="590" y="109" class="uml-text-sm">- 評分: 數值</text>
+        <line x1="580" y1="115" x2="780" y2="115" class="uml-line"/>
+        <text x="590" y="135" class="uml-text-sm">+ 接單()</text>
+        <text x="590" y="148" class="uml-text-sm">+ 更新營業狀態()</text>
+
+        <!-- Class: Driver -->
+        <rect x="20" y="250" width="170" height="120" class="uml-fill-warn" rx="4"/>
+        <text x="105" y="275" text-anchor="middle" class="uml-text-title">外送員</text>
+        <line x1="20" y1="285" x2="190" y2="285" class="uml-line"/>
+        <text x="30" y="305" class="uml-text-sm">- 姓名: 字串</text>
+        <text x="30" y="322" class="uml-text-sm">- 目前位置: 座標</text>
+        <text x="30" y="339" class="uml-text-sm">- 狀態: 外送員狀態</text>
+        <line x1="20" y1="345" x2="190" y2="345" class="uml-line"/>
+        <text x="30" y="365" class="uml-text-sm">+ 接受派單()</text>
+
+        <!-- Class: Payment -->
+        <rect x="20" y="460" width="170" height="100" class="uml-fill-purple" rx="4"/>
+        <text x="105" y="485" text-anchor="middle" class="uml-text-title">付款紀錄</text>
+        <line x1="20" y1="495" x2="190" y2="495" class="uml-line"/>
+        <text x="30" y="515" class="uml-text-sm">- 付款方式: 字串</text>
+        <text x="30" y="530" class="uml-text-sm">- 金額: 數值</text>
+        <text x="30" y="545" class="uml-text-sm">- 付款狀態: 字串</text>
+
+        <!-- Relationships -->
+        <!-- Customer 1 --- * Order (Association) -->
+        <line x1="190" y1="80" x2="300" y2="80" class="uml-line"/>
+        <text x="205" y="73" class="uml-text-sm">1</text>
+        <text x="280" y="73" class="uml-text-sm">*</text>
+        <text x="245" y="98" text-anchor="middle" class="uml-text-sm" fill="var(--text-muted)">下單</text>
+
+        <!-- Order 1 ◆--1..* OrderItem (Composition) -->
+        <line x1="400" y1="170" x2="400" y2="250" class="uml-line" marker-start="url(#diamond-filled)"/>
+        <text x="410" y="188" class="uml-text-sm">1</text>
+        <text x="410" y="245" class="uml-text-sm">1..*</text>
+
+        <!-- OrderItem --- MenuItem (Association) -->
+        <line x1="500" y1="315" x2="580" y2="315" class="uml-line"/>
+        <text x="515" y="308" class="uml-text-sm">*</text>
+        <text x="565" y="308" class="uml-text-sm">1</text>
+
+        <!-- MenuItem <|-- Food, Drink (Inheritance) -->
+        <line x1="680" y1="380" x2="680" y2="420" class="uml-line"/>
+        <line x1="620" y1="460" x2="620" y2="420" class="uml-line"/>
+        <line x1="760" y1="460" x2="760" y2="420" class="uml-line"/>
+        <line x1="620" y1="420" x2="760" y2="420" class="uml-line"/>
+        <polygon points="680,380 670,400 690,400" fill="#fff" stroke="var(--svg-stroke)" stroke-width="1.5"/>
+
+        <!-- Restaurant ◇--- Driver (Aggregation) -->
+        <line x1="580" y1="100" x2="400" y2="100" class="uml-line"/>
+        <line x1="190" y1="310" x2="240" y2="310" class="uml-line"/>
+        <line x1="240" y1="310" x2="240" y2="100" class="uml-line"/>
+        <line x1="240" y1="100" x2="300" y2="100" class="uml-line"/>
+        <!-- Actually let me simplify: Restaurant aggregates Driver -->
+        <!-- Restaurant 1 ◇--- * Driver -->
+        <line x1="580" y1="130" x2="530" y2="130" class="uml-line"/>
+        <line x1="530" y1="130" x2="530" y2="195" class="uml-line"/>
+        <line x1="530" y1="195" x2="105" y2="195" class="uml-line"/>
+        <line x1="105" y1="195" x2="105" y2="250" class="uml-line" marker-start="url(#diamond-open)"/>
+        <text x="540" y="145" class="uml-text-sm">1</text>
+        <text x="115" y="243" class="uml-text-sm">*</text>
+
+        <!-- Restaurant 1 --- * MenuItem -->
+        <line x1="680" y1="150" x2="680" y2="250" class="uml-line"/>
+        <text x="690" y="165" class="uml-text-sm">1</text>
+        <text x="690" y="245" class="uml-text-sm">*</text>
+
+        <!-- Order 1 --- 1 Payment -->
+        <line x1="300" y1="145" x2="250" y2="145" class="uml-line"/>
+        <line x1="250" y1="145" x2="250" y2="510" class="uml-line"/>
+        <line x1="250" y1="510" x2="190" y2="510" class="uml-line"/>
+        <text x="260" y="165" class="uml-text-sm">1</text>
+        <text x="205" y="505" class="uml-text-sm">1</text>
+
+        <!-- Order * --- 0..1 Driver -->
+        <line x1="300" y1="120" x2="170" y2="120" class="uml-line"/>
+        <line x1="170" y1="120" x2="170" y2="250" class="uml-line"/>
+        <text x="280" y="113" class="uml-text-sm">*</text>
+        <text x="155" y="245" class="uml-text-sm">0..1</text>
+      </svg>
+      <p class="diagram-caption">圖 5-5：點餐系統類別圖</p>
+    </div>
+
+    <h3>關係解讀</h3>
+    <table class="styled-table">
+      <thead><tr><th>關係</th><th>解讀</th><th>多重性</th></tr></thead>
+      <tbody>
+        <tr><td>顧客 — 訂單</td><td>一位顧客可以有多筆訂單（關聯）</td><td>1 對 *</td></tr>
+        <tr><td>訂單 ◆ 訂單品項</td><td>訂單刪了，品項也消失（組合）</td><td>1 對 1..*</td></tr>
+        <tr><td>訂單品項 — 菜單品項</td><td>品項對應菜單上的項目（關聯）</td><td>* 對 1</td></tr>
+        <tr><td>餐廳 ◇ 外送員</td><td>餐廳關了，外送員仍存在（聚合）</td><td>1 對 *</td></tr>
+        <tr><td>食物/飲料 → 菜單品項</td><td>食物和飲料繼承菜單品項（繼承）</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="summary-block">
+    <h2><span class="icon">&#128220;</span> 重點整理</h2>
+    <ul class="summary-list">
+      <li>類別包含三區：名稱、屬性、操作</li>
+      <li><strong>關聯</strong>（實線）：兩個類別互相知道對方</li>
+      <li><strong>繼承</strong>（空心三角箭頭）：子類別擁有父類別所有屬性與方法</li>
+      <li><strong>聚合</strong>（空心菱形）：部分可獨立存在（餐廳 ◇ 外送員）</li>
+      <li><strong>組合</strong>（實心菱形）：部分不可獨立存在（訂單 ◆ 訂單品項）</li>
+      <li>多重性標示兩端的數量關係（1、*、0..1、1..*）</li>
+    </ul>
+  </div>
+
+  <div class="practice-block">
+    <h2><span class="icon">&#9998;</span> 練習題</h2>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">1</span>
+        <span>「建築物」和「房間」之間是聚合還是組合關係？為什麼？</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <p><strong>組合（Composition）</strong>。建築物拆除了，裡面的房間也不復存在。房間無法脫離建築物獨立存在，所以用實心菱形。</p>
+      </div>
+    </div>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">2</span>
+        <span>請為點餐系統新增一個「付款方式」的繼承架構，包含信用卡、Line Pay、貨到付款三個子類別，各自有什麼獨特屬性？</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <p>父類別：<strong>付款方式</strong>（共有屬性：金額、付款時間、狀態）</p>
+        <ul>
+          <li><strong>信用卡</strong>：卡號末四碼、有效期限、授權碼</li>
+          <li><strong>Line Pay</strong>：交易編號、Line 帳號</li>
+          <li><strong>貨到付款</strong>：找零金額、收款人簽名確認</li>
+        </ul>
+        <p>三者都繼承父類別的「金額」「付款時間」「狀態」，再各自擴充獨特屬性。</p>
+      </div>
+    </div>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">3</span>
+        <span>「圖書館」和「書本」是聚合還是組合？「訂單」和「訂單編號」呢？</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <p><strong>圖書館 ◇ 書本</strong>：聚合。圖書館關閉了，書本仍然存在（可以搬到別處）。</p>
+        <p><strong>訂單和訂單編號</strong>：這不是聚合或組合關係，訂單編號是訂單的<strong>屬性（attribute）</strong>，不是獨立的類別。只有當兩個獨立的類別之間有「整體-部分」的關係時，才使用聚合/組合。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="#ch5-3">&#8592; 5-3 序列圖</a>
+    <a href="#ch5-5">5-5 狀態圖 &#8594;</a>
+  </div>
+</section>
+
+<!-- ==================== PAGE: CH5-5 ==================== -->
+<section data-page="ch5-5" class="page">
+  <span class="chapter-tag">Chapter 5</span>
+  <h1>5-5 狀態圖</h1>
+
+  <div class="concept-block">
+    <h2><span class="icon">&#128218;</span> 概念說明</h2>
+    <p><strong>狀態圖（State Diagram）</strong>描述系統如何回應事件，以及事件如何觸發狀態之間的轉換。</p>
+    <p>基本元素：</p>
+    <ul>
+      <li><strong>狀態（State）</strong>：圓角矩形，系統在某個時刻的情況</li>
+      <li><strong>初始狀態</strong>：實心圓點</li>
+      <li><strong>最終狀態</strong>：牛眼（同心圓）</li>
+      <li><strong>轉換（Transition）</strong>：箭頭，格式為「<em>事件 [條件] / 動作</em>」</li>
+    </ul>
+
+    <h3>資料驅動 vs 事件驅動</h3>
+    <table class="styled-table">
+      <thead><tr><th>比較</th><th>資料驅動</th><th>事件驅動</th></tr></thead>
+      <tbody>
+        <tr><td>觸發方式</td><td>有資料輸入時觸發處理</td><td>事件發生時觸發狀態轉換</td></tr>
+        <tr><td>焦點</td><td>資料的流動與轉換過程</td><td>系統狀態的變化</td></tr>
+        <tr><td>常見模型</td><td>資料流圖（DFD）、活動圖</td><td>狀態圖</td></tr>
+        <tr><td>適用系統</td><td>商業資料處理系統</td><td>即時系統、控制系統、UI 互動</td></tr>
+        <tr><td>範例</td><td>處理訂單報表</td><td>訂單狀態流轉</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="example-block">
+    <h2><span class="icon">&#127828;</span> 點餐系統範例：訂單狀態圖</h2>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 800 450" width="800">
+        <!-- Initial state -->
+        <circle cx="50" cy="80" r="10" fill="var(--svg-stroke)"/>
+        <line x1="60" y1="80" x2="110" y2="80" class="uml-line" marker-end="url(#arrow)"/>
+
+        <!-- State: Placed -->
+        <rect x="110" y="55" width="120" height="50" rx="20" class="uml-fill"/>
+        <text x="170" y="85" text-anchor="middle" class="uml-text" font-weight="600">已下單</text>
+        <line x1="230" y1="80" x2="300" y2="80" class="uml-line" marker-end="url(#arrow)"/>
+        <text x="265" y="72" text-anchor="middle" class="uml-text-sm" fill="var(--green)">餐廳接單</text>
+
+        <!-- State: Accepted -->
+        <rect x="300" y="55" width="120" height="50" rx="20" class="uml-fill"/>
+        <text x="360" y="85" text-anchor="middle" class="uml-text" font-weight="600">已接單</text>
+        <line x1="420" y1="80" x2="490" y2="80" class="uml-line" marker-end="url(#arrow)"/>
+        <text x="455" y="72" text-anchor="middle" class="uml-text-sm" fill="var(--green)">開始製作</text>
+
+        <!-- State: Preparing -->
+        <rect x="490" y="55" width="120" height="50" rx="20" class="uml-fill-alt"/>
+        <text x="550" y="85" text-anchor="middle" class="uml-text" font-weight="600">製作中</text>
+        <line x1="550" y1="105" x2="550" y2="175" class="uml-line" marker-end="url(#arrow)"/>
+        <text x="590" y="145" class="uml-text-sm" fill="var(--green)">製作完成</text>
+
+        <!-- State: Ready -->
+        <rect x="490" y="175" width="120" height="50" rx="20" class="uml-fill-alt"/>
+        <text x="550" y="205" text-anchor="middle" class="uml-text" font-weight="600">待取餐</text>
+        <line x1="490" y1="200" x2="420" y2="200" class="uml-line" marker-end="url(#arrow)"/>
+        <text x="455" y="192" text-anchor="middle" class="uml-text-sm" fill="var(--green)">外送員取餐</text>
+
+        <!-- State: Delivering -->
+        <rect x="300" y="175" width="120" height="50" rx="20" class="uml-fill-warn"/>
+        <text x="360" y="205" text-anchor="middle" class="uml-text" font-weight="600">外送中</text>
+        <line x1="300" y1="200" x2="230" y2="200" class="uml-line" marker-end="url(#arrow)"/>
+        <text x="265" y="192" text-anchor="middle" class="uml-text-sm" fill="var(--green)">送達確認</text>
+
+        <!-- State: Delivered -->
+        <rect x="110" y="175" width="120" height="50" rx="20" class="uml-fill-warn"/>
+        <text x="170" y="205" text-anchor="middle" class="uml-text" font-weight="600">已送達</text>
+        <line x1="170" y1="225" x2="170" y2="295" class="uml-line" marker-end="url(#arrow)"/>
+        <text x="210" y="265" class="uml-text-sm" fill="var(--green)">顧客確認收餐</text>
+
+        <!-- State: Completed -->
+        <rect x="110" y="295" width="120" height="50" rx="20" class="uml-fill-purple"/>
+        <text x="170" y="325" text-anchor="middle" class="uml-text" font-weight="600">已完成</text>
+        <line x1="170" y1="345" x2="170" y2="390" class="uml-line" marker-end="url(#arrow)"/>
+
+        <!-- Final state -->
+        <circle cx="170" cy="400" r="10" fill="none" stroke="var(--svg-stroke)" stroke-width="2"/>
+        <circle cx="170" cy="400" r="6" fill="var(--svg-stroke)"/>
+
+        <!-- Cancel paths -->
+        <!-- Cancel from Placed -->
+        <line x1="170" y1="105" x2="170" y2="130" class="uml-line"/>
+        <line x1="170" y1="130" x2="650" y2="130" class="uml-line"/>
+        <line x1="650" y1="130" x2="650" y2="310" class="uml-line" marker-end="url(#arrow)"/>
+        <text x="400" y="123" text-anchor="middle" class="uml-text-sm" fill="var(--red)">顧客取消 [尚未製作]</text>
+
+        <!-- Cancel state -->
+        <rect x="590" y="310" width="120" height="50" rx="20" fill="var(--red-bg)" stroke="var(--svg-stroke)" stroke-width="1.5"/>
+        <text x="650" y="340" text-anchor="middle" class="uml-text" font-weight="600" fill="var(--red)">已取消</text>
+        <line x1="650" y1="360" x2="650" y2="390" class="uml-line" marker-end="url(#arrow)"/>
+        <circle cx="650" cy="400" r="10" fill="none" stroke="var(--svg-stroke)" stroke-width="2"/>
+        <circle cx="650" cy="400" r="6" fill="var(--svg-stroke)"/>
+
+        <!-- Cancel from Accepted -->
+        <line x1="360" y1="105" x2="360" y2="130" class="uml-line"/>
+      </svg>
+      <p class="diagram-caption">圖 5-6：訂單狀態圖</p>
+    </div>
+
+    <div class="callout green">
+      <p><strong>讀圖方式：</strong>每個箭頭旁邊的文字是觸發狀態轉換的<strong>事件</strong>。例如「餐廳接單」這個事件會讓訂單從「已下單」轉換到「已接單」。紅色路徑代表取消流程。</p>
+    </div>
+  </div>
+
+  <div class="summary-block">
+    <h2><span class="icon">&#128220;</span> 重點整理</h2>
+    <ul class="summary-list">
+      <li>狀態圖適合描述<strong>有明確生命週期</strong>的物件（如訂單、帳號）</li>
+      <li>轉換格式：事件 [守衛條件] / 動作</li>
+      <li>資料驅動系統關注<strong>資料如何流動</strong>，事件驅動系統關注<strong>狀態如何改變</strong></li>
+      <li>大部分商業系統是資料驅動，即時系統是事件驅動</li>
+      <li>同一個系統可能同時需要兩種模型</li>
+    </ul>
+  </div>
+
+  <div class="practice-block">
+    <h2><span class="icon">&#9998;</span> 練習題</h2>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">1</span>
+        <span>請列出外送員可能的狀態以及觸發轉換的事件。</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <ul>
+          <li><strong>離線</strong> → 上線（事件：打開 App 開始接單）</li>
+          <li><strong>待命中</strong> → 已派單（事件：系統派發新訂單）</li>
+          <li><strong>已派單</strong> → 前往取餐（事件：接受派單）</li>
+          <li><strong>已派單</strong> → 待命中（事件：拒絕派單）</li>
+          <li><strong>前往取餐</strong> → 等待出餐（事件：抵達餐廳）</li>
+          <li><strong>等待出餐</strong> → 外送中（事件：取得餐點）</li>
+          <li><strong>外送中</strong> → 待命中（事件：送達確認）</li>
+          <li><strong>任何狀態</strong> → 離線（事件：關閉 App）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">2</span>
+        <span>為什麼訂單在「製作中」狀態不能被顧客取消？</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <p>因為餐廳已經開始製作了，食材和人力已經投入。這個限制用<strong>守衛條件</strong>表示：取消事件的條件是 [尚未製作]，一旦進入「製作中」，這個條件就不成立，所以取消路徑被封鎖。</p>
+        <p>這就是為什麼在狀態圖中，取消的箭頭只從「已下單」和「已接單」出發，而不從「製作中」出發。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="#ch5-4">&#8592; 5-4 類別圖</a>
+    <a href="#ch5-6">5-6 MDA 三層模型 &#8594;</a>
+  </div>
+</section>
+
+<!-- ==================== PAGE: CH5-6 ==================== -->
+<section data-page="ch5-6" class="page">
+  <span class="chapter-tag">Chapter 5</span>
+  <h1>5-6 MDA 三層模型</h1>
+
+  <div class="concept-block">
+    <h2><span class="icon">&#128218;</span> 概念說明</h2>
+    <p><strong>模型驅動式架構（Model-Driven Architecture, MDA）</strong>是一種以模型為核心的軟體設計方法。核心理念是：先建模型，再從模型自動產生程式碼。</p>
+    <p>MDA 使用三個抽象層次的模型：</p>
+    <ul>
+      <li><strong>CIM（Computation Independent Model）</strong>：計算獨立模型，描述業務領域，不涉及任何技術</li>
+      <li><strong>PIM（Platform Independent Model）</strong>：平台獨立模型，描述系統功能與結構，不綁定特定技術</li>
+      <li><strong>PSM（Platform Specific Model）</strong>：平台特定模型，針對特定技術平台的實作細節</li>
+    </ul>
+  </div>
+
+  <div class="example-block">
+    <h2><span class="icon">&#127828;</span> 點餐系統範例</h2>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 700 420" width="700">
+        <!-- CIM Layer -->
+        <rect x="50" y="20" width="600" height="100" rx="10" class="uml-fill"/>
+        <text x="350" y="48" text-anchor="middle" class="uml-text-title">CIM — 計算獨立模型（業務層）</text>
+        <text x="350" y="72" text-anchor="middle" class="uml-text-sm">「顧客選擇餐點、下單、餐廳接單製作、外送員送餐」</text>
+        <text x="350" y="90" text-anchor="middle" class="uml-text-sm">只描述業務流程，不涉及任何系統或技術</text>
+        <text x="350" y="108" text-anchor="middle" class="uml-text-sm" fill="var(--text-muted)">（對應工具：Use Case 圖、活動圖）</text>
+
+        <!-- Arrow CIM -> PIM -->
+        <line x1="350" y1="120" x2="350" y2="155" class="uml-line" marker-end="url(#arrow)"/>
+        <text x="380" y="142" class="uml-text-sm" fill="var(--primary)">抽象化 ↓</text>
+
+        <!-- PIM Layer -->
+        <rect x="50" y="155" width="600" height="100" rx="10" class="uml-fill-alt"/>
+        <text x="350" y="183" text-anchor="middle" class="uml-text-title">PIM — 平台獨立模型（邏輯層）</text>
+        <text x="350" y="207" text-anchor="middle" class="uml-text-sm">「訂單類別有編號、品項、金額屬性，顧客呼叫下單方法」</text>
+        <text x="350" y="225" text-anchor="middle" class="uml-text-sm">描述系統結構與行為，但不指定用 Java 或 Python</text>
+        <text x="350" y="243" text-anchor="middle" class="uml-text-sm" fill="var(--text-muted)">（對應工具：類別圖、序列圖、狀態圖）</text>
+
+        <!-- Arrow PIM -> PSM -->
+        <line x1="350" y1="255" x2="350" y2="290" class="uml-line" marker-end="url(#arrow)"/>
+        <text x="380" y="277" class="uml-text-sm" fill="var(--primary)">轉換 ↓</text>
+
+        <!-- PSM Layer -->
+        <rect x="50" y="290" width="600" height="120" rx="10" class="uml-fill-warn"/>
+        <text x="350" y="315" text-anchor="middle" class="uml-text-title">PSM — 平台特定模型（實作層）</text>
+        <rect x="75" y="335" width="160" height="28" rx="4" fill="none" stroke="var(--svg-stroke)" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="155" y="354" text-anchor="middle" class="uml-text-sm">Java + Spring Boot</text>
+        <rect x="270" y="335" width="160" height="28" rx="4" fill="none" stroke="var(--svg-stroke)" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="350" y="354" text-anchor="middle" class="uml-text-sm">Python + Django</text>
+        <rect x="465" y="335" width="160" height="28" rx="4" fill="none" stroke="var(--svg-stroke)" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="545" y="354" text-anchor="middle" class="uml-text-sm">Node.js + Express</text>
+        <text x="350" y="393" text-anchor="middle" class="uml-text-sm">同一個 PIM 可以轉換成不同平台的 PSM</text>
+      </svg>
+      <p class="diagram-caption">圖 5-7：MDA 三層模型</p>
+    </div>
+
+    <h3>具體對照</h3>
+    <table class="styled-table">
+      <thead><tr><th>層次</th><th>描述的內容</th><th>點餐系統範例</th></tr></thead>
+      <tbody>
+        <tr><td>CIM</td><td>業務流程與領域概念</td><td>「顧客從菜單選餐，付款後餐廳收到訂單開始製作」</td></tr>
+        <tr><td>PIM</td><td>系統邏輯（類別、介面、互動）</td><td>訂單類別有 計算總額() 方法，顧客與訂單是 1 對 * 關聯</td></tr>
+        <tr><td>PSM</td><td>特定技術的實作細節</td><td>用 Django ORM 定義 Order Model，PostgreSQL 儲存，REST API</td></tr>
+      </tbody>
+    </table>
+
+    <h3>MDA 的挑戰與限制</h3>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>模型與實作的差距</h3>
+        <p>效能優化、錯誤處理等細節很難在模型中表達，完全自動化生成程式碼仍不現實</p>
+      </div>
+      <div class="feature-card">
+        <h3>工具生態不足</h3>
+        <p>MDA 工具的易用性與整合性有限，且公司不想依賴可能退出市場的小型工具商</p>
+      </div>
+      <div class="feature-card">
+        <h3>敏捷方法的競爭</h3>
+        <p>敏捷開發強調快速迭代與直接寫程式碼，與 MDA 先建模型的理念形成對比</p>
+      </div>
+      <div class="feature-card">
+        <h3>適用範圍有限</h3>
+        <p>MDA 較適合大型、長壽命系統，小型或快速變化的專案效益不明顯</p>
+      </div>
+    </div>
+    <div class="callout amber">
+      <p><strong>現實情況：</strong>MDA 一直沒有成為軟體開發的主流方法。對大多數系統而言，需求工程、安全性、與舊系統整合、以及測試，比自動產生程式碼來得更重要。</p>
+    </div>
+  </div>
+
+  <div class="summary-block">
+    <h2><span class="icon">&#128220;</span> 重點整理</h2>
+    <ul class="summary-list">
+      <li>MDA 以模型為核心，目標是從模型自動生成程式碼</li>
+      <li>三層模型：CIM（業務）→ PIM（邏輯）→ PSM（實作）</li>
+      <li>PIM 的優勢是<strong>平台獨立</strong>，同一個模型可轉換到不同技術平台</li>
+      <li>實務上完全自動化轉譯仍不可行，MDA 未成為主流</li>
+      <li>MDA 較適合大型、長壽命系統，不適合敏捷快速迭代的專案</li>
+    </ul>
+  </div>
+
+  <div class="practice-block">
+    <h2><span class="icon">&#9998;</span> 練習題</h2>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">1</span>
+        <span>「訂單必須在 2 秒內建立完成」這個描述屬於 CIM、PIM 還是 PSM？</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <p>屬於 <strong>PIM</strong>。它描述的是系統的效能需求（非功能需求），但沒有指定用什麼技術實現。如果改成「使用 Redis 快取加速訂單建立，回應時間 ≤ 2 秒」，那就是 PSM。</p>
+      </div>
+    </div>
+    <div class="question">
+      <button class="question-toggle" aria-expanded="false">
+        <span class="q-num">2</span>
+        <span>為什麼 MDA 沒有成為主流？請至少說出兩個原因。</span>
+        <span class="arrow">&#9660;</span>
+      </button>
+      <div class="answer" hidden>
+        <ul>
+          <li><strong>模型到程式碼的差距</strong>：許多細節（效能優化、例外處理）無法在模型中充分表達，完全自動生成不實際</li>
+          <li><strong>敏捷方法興起</strong>：業界轉向快速迭代的敏捷開發，直接寫程式碼比先建完整模型更有效率</li>
+          <li><strong>工具不成熟</strong>：MDA 工具不夠好用，公司不想依賴可能消失的小廠商</li>
+          <li><strong>實作不是主要問題</strong>：軟體開發的困難在於需求、安全性、舊系統整合、測試，而非程式碼撰寫本身</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="#ch5-5">&#8592; 5-5 狀態圖</a>
+    <a href="#home">回到首頁 &#8594;</a>
+  </div>
+</section>
+
+<!-- ==================== PAGE: DEMO ==================== -->
+<section data-page="demo" class="page demo-page">
+  <span class="chapter-tag" style="background:var(--green-bg);color:var(--green);">互動教學</span>
+  <h1>點餐系統 Demo</h1>
+  <p style="color:var(--text-secondary);margin-bottom:1.5rem;">操作左側的模擬介面，右側會即時顯示對應的 UML 圖。體驗「系統行為」如何被 UML 描述。</p>
+
+  <!-- Step bar -->
+  <div class="demo-steps">
+    <button class="demo-step-btn active" onclick="goStep(0)"><span class="step-num">步驟 1</span>選擇餐廳</button>
+    <button class="demo-step-btn" onclick="goStep(1)"><span class="step-num">步驟 2</span>選擇餐點</button>
+    <button class="demo-step-btn" onclick="goStep(2)"><span class="step-num">步驟 3</span>確認付款</button>
+    <button class="demo-step-btn" onclick="goStep(3)"><span class="step-num">步驟 4</span>訂單追蹤</button>
+    <button class="demo-step-btn" onclick="goStep(4)"><span class="step-num">步驟 5</span>完成評價</button>
+  </div>
+
+  <!-- Split view -->
+  <div class="demo-split">
+    <!-- LEFT: App UI -->
+    <div class="demo-left">
+      <div class="demo-panel-header">&#128241; 點餐 App 模擬</div>
+      <div class="demo-panel-body">
+
+        <!-- Step 0: Choose restaurant -->
+        <div class="demo-ui active" id="demo-ui-0">
+          <p style="font-weight:600;margin-bottom:0.75rem;">附近的餐廳</p>
+          <div class="restaurant-list">
+            <div class="restaurant-card" onclick="selectRestaurant(this, '好喝茶飲店')">
+              <span class="r-icon">&#129380;</span>
+              <div class="r-info"><h4>好喝茶飲店</h4><p>距離 0.8 km・約 15 分鐘</p></div>
+              <span class="r-rating">&#11088; 4.7</span>
+            </div>
+            <div class="restaurant-card" onclick="selectRestaurant(this, '阿明滷肉飯')">
+              <span class="r-icon">&#127834;</span>
+              <div class="r-info"><h4>阿明滷肉飯</h4><p>距離 1.2 km・約 20 分鐘</p></div>
+              <span class="r-rating">&#11088; 4.5</span>
+            </div>
+            <div class="restaurant-card" onclick="selectRestaurant(this, '義式手工披薩')">
+              <span class="r-icon">&#127829;</span>
+              <div class="r-info"><h4>義式手工披薩</h4><p>距離 2.0 km・約 25 分鐘</p></div>
+              <span class="r-rating">&#11088; 4.8</span>
+            </div>
+          </div>
+          <div style="margin-top:1rem;text-align:right;">
+            <button class="demo-btn demo-btn-primary" id="btn-to-menu" disabled onclick="goStep(1)">選好了，看菜單 &#8594;</button>
+          </div>
+        </div>
+
+        <!-- Step 1: Choose items -->
+        <div class="demo-ui" id="demo-ui-1">
+          <p style="font-weight:600;margin-bottom:0.5rem;" id="menu-title">菜單</p>
+          <div class="menu-grid" id="menu-grid"></div>
+          <div style="margin-top:1rem;display:flex;justify-content:space-between;">
+            <button class="demo-btn demo-btn-outline" onclick="goStep(0)">&#8592; 換餐廳</button>
+            <button class="demo-btn demo-btn-primary" id="btn-to-cart" disabled onclick="goStep(2)">前往結帳 (<span id="cart-count">0</span>) &#8594;</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Payment -->
+        <div class="demo-ui" id="demo-ui-2">
+          <p style="font-weight:600;margin-bottom:0.75rem;">訂單確認</p>
+          <div class="cart-summary" id="cart-summary"></div>
+          <p style="font-weight:600;margin-bottom:0.5rem;">選擇付款方式</p>
+          <div class="pay-methods">
+            <div class="pay-method" onclick="selectPay(this)">
+              <span class="pm-icon">&#128179;</span><span class="pm-name">信用卡</span>
+            </div>
+            <div class="pay-method" onclick="selectPay(this)">
+              <span class="pm-icon">&#128154;</span><span class="pm-name">Line Pay</span>
+            </div>
+            <div class="pay-method" onclick="selectPay(this)">
+              <span class="pm-icon">&#128181;</span><span class="pm-name">貨到付款</span>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <button class="demo-btn demo-btn-outline" onclick="goStep(1)">&#8592; 修改餐點</button>
+            <button class="demo-btn demo-btn-primary" id="btn-pay" disabled onclick="startPayment()">確認付款 &#8594;</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Order tracking -->
+        <div class="demo-ui" id="demo-ui-3">
+          <div class="order-status">
+            <span class="status-icon" id="tracking-icon">&#128666;</span>
+            <div class="status-text" id="tracking-text">訂單處理中...</div>
+            <div class="status-detail" id="tracking-detail">餐廳正在準備您的餐點</div>
+          </div>
+          <div class="status-timeline" id="order-timeline">
+            <div class="timeline-item done"><div class="timeline-dot">&#10003;</div><div class="timeline-label">已下單<small>14:30:00</small></div></div>
+            <div class="timeline-item done"><div class="timeline-dot">&#10003;</div><div class="timeline-label">餐廳已接單<small>14:30:15</small></div></div>
+            <div class="timeline-item current"><div class="timeline-dot">3</div><div class="timeline-label">製作中<small>預計 10 分鐘</small></div></div>
+            <div class="timeline-item"><div class="timeline-dot">4</div><div class="timeline-label">外送中<small></small></div></div>
+            <div class="timeline-item"><div class="timeline-dot">5</div><div class="timeline-label">已送達<small></small></div></div>
+          </div>
+          <div style="text-align:center;margin-top:1rem;">
+            <button class="demo-btn demo-btn-primary" onclick="advanceOrder()">模擬下一步 &#9654;</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Rating -->
+        <div class="demo-ui" id="demo-ui-4">
+          <div class="order-status">
+            <span class="status-icon">&#127881;</span>
+            <div class="status-text">訂單已完成！</div>
+            <div class="status-detail">感謝您的訂購</div>
+          </div>
+          <p style="font-weight:600;margin:1rem 0 0.5rem;text-align:center;">為餐廳評分</p>
+          <div style="text-align:center;font-size:2rem;cursor:pointer;letter-spacing:0.3rem;" id="star-row">
+            <span onclick="setRating(1)">&#9734;</span><span onclick="setRating(2)">&#9734;</span><span onclick="setRating(3)">&#9734;</span><span onclick="setRating(4)">&#9734;</span><span onclick="setRating(5)">&#9734;</span>
+          </div>
+          <div id="rating-msg" style="text-align:center;margin-top:0.5rem;font-size:0.88rem;color:var(--text-muted);"></div>
+          <div style="text-align:center;margin-top:1.5rem;">
+            <button class="demo-btn demo-btn-outline" onclick="resetDemo()">&#8634; 重新開始</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: UML -->
+    <div class="demo-right">
+      <div class="demo-panel-header">&#128202; 對應 UML 圖</div>
+      <div class="demo-panel-body">
+
+        <!-- UML Step 0: Use Case -->
+        <div class="uml-panel active" id="uml-panel-0">
+          <p style="font-weight:600;margin-bottom:0.5rem;">Use Case 圖 — 搜尋餐廳</p>
+          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">你正在執行「搜尋餐廳」這個 Use Case。顧客與系統互動，瀏覽可用的餐廳。</p>
+          <svg viewBox="0 0 380 220" width="380">
+            <rect x="100" y="10" width="240" height="200" rx="8" fill="none" stroke="var(--svg-stroke)" stroke-width="1" stroke-dasharray="5,3"/>
+            <text x="220" y="32" text-anchor="middle" class="uml-text-sm" fill="var(--text-muted)">點餐外送系統</text>
+            <use href="#actor" x="15" y="55" width="35" height="52"/>
+            <text x="33" y="123" text-anchor="middle" class="uml-text" font-weight="600">顧客</text>
+            <ellipse cx="220" cy="75" rx="75" ry="22" class="uml-highlight-box" fill="var(--svg-fill)"/>
+            <text x="220" y="80" text-anchor="middle" class="uml-text" font-weight="600">搜尋餐廳</text>
+            <ellipse cx="220" cy="130" rx="75" ry="22" class="uml-fill" style="opacity:0.4"/>
+            <text x="220" y="135" text-anchor="middle" class="uml-text" style="opacity:0.4">下單點餐</text>
+            <ellipse cx="220" cy="180" rx="75" ry="22" class="uml-fill" style="opacity:0.4"/>
+            <text x="220" y="185" text-anchor="middle" class="uml-text" style="opacity:0.4">追蹤訂單</text>
+            <line x1="50" y1="82" x2="145" y2="75" class="uml-line" stroke-width="2" stroke="var(--primary)"/>
+            <line x1="50" y1="85" x2="145" y2="130" class="uml-line" style="opacity:0.3"/>
+            <line x1="50" y1="88" x2="145" y2="180" class="uml-line" style="opacity:0.3"/>
+          </svg>
+          <a href="#ch5-2" class="demo-explain-link">&#128214; 查看 Use Case 圖解說</a>
+        </div>
+
+        <!-- UML Step 1: Activity Diagram -->
+        <div class="uml-panel" id="uml-panel-1">
+          <p style="font-weight:600;margin-bottom:0.5rem;">活動圖 — 選餐點加入購物車</p>
+          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">你正在「選擇餐點加入購物車」活動中，這是顧客水道裡的第二步。</p>
+          <svg viewBox="0 0 340 280" width="340">
+            <rect x="10" y="10" width="320" height="260" fill="rgba(37,99,235,0.04)" stroke="var(--border)" stroke-width="1" rx="6"/>
+            <text x="170" y="30" text-anchor="middle" class="uml-text-sm" fill="var(--primary)" font-weight="600">顧客水道</text>
+            <circle cx="170" cy="50" r="8" fill="var(--svg-stroke)"/>
+            <line x1="170" y1="58" x2="170" y2="72" class="uml-line" marker-end="url(#arrow)"/>
+            <rect x="100" y="72" width="140" height="30" rx="15" class="uml-fill" style="opacity:0.4"/>
+            <text x="170" y="92" text-anchor="middle" class="uml-text-sm" style="opacity:0.5">瀏覽餐廳與菜單</text>
+            <line x1="170" y1="102" x2="170" y2="120" class="uml-line" marker-end="url(#arrow)"/>
+            <rect x="80" y="120" width="180" height="30" rx="15" class="uml-highlight-box" fill="var(--svg-fill)"/>
+            <text x="170" y="140" text-anchor="middle" class="uml-text-sm" font-weight="600">選擇餐點加入購物車</text>
+            <line x1="170" y1="150" x2="170" y2="168" class="uml-line" marker-end="url(#arrow)"/>
+            <rect x="90" y="168" width="160" height="30" rx="15" class="uml-fill" style="opacity:0.4"/>
+            <text x="170" y="188" text-anchor="middle" class="uml-text-sm" style="opacity:0.5">確認訂單與付款</text>
+            <line x1="170" y1="198" x2="170" y2="216" class="uml-line" style="opacity:0.3"/>
+            <text x="170" y="230" text-anchor="middle" class="uml-text-sm" style="opacity:0.3">...</text>
+          </svg>
+          <a href="#ch5-1" class="demo-explain-link">&#128214; 查看活動圖解說</a>
+        </div>
+
+        <!-- UML Step 2: Sequence Diagram -->
+        <div class="uml-panel" id="uml-panel-2">
+          <p style="font-weight:600;margin-bottom:0.5rem;">序列圖 — 下單付款流程</p>
+          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">你正在執行付款。顧客 App 向訂單系統發送請求，訂單系統再呼叫付款系統。</p>
+          <svg viewBox="0 0 380 300" width="380">
+            <rect x="10" y="8" width="60" height="28" rx="3" class="uml-fill"/>
+            <text x="40" y="27" text-anchor="middle" class="uml-text-sm" font-weight="600">顧客</text>
+            <rect x="120" y="8" width="70" height="28" rx="3" class="uml-fill"/>
+            <text x="155" y="27" text-anchor="middle" class="uml-text-sm" font-weight="600">訂單系統</text>
+            <rect x="260" y="8" width="70" height="28" rx="3" class="uml-fill-warn"/>
+            <text x="295" y="27" text-anchor="middle" class="uml-text-sm" font-weight="600">付款系統</text>
+            <line x1="40" y1="36" x2="40" y2="280" class="uml-line-dashed"/>
+            <line x1="155" y1="36" x2="155" y2="280" class="uml-line-dashed"/>
+            <line x1="295" y1="36" x2="295" y2="280" class="uml-line-dashed"/>
+            <rect x="36" y="50" width="8" height="200" fill="var(--primary-light)" stroke="var(--svg-stroke)" stroke-width="0.5"/>
+            <rect x="151" y="65" width="8" height="180" fill="var(--green-bg)" stroke="var(--svg-stroke)" stroke-width="0.5"/>
+            <rect x="291" y="140" width="8" height="70" fill="var(--amber-bg)" stroke="var(--svg-stroke)" stroke-width="0.5"/>
+            <!-- Messages -->
+            <line x1="44" y1="70" x2="151" y2="70" stroke="var(--svg-stroke)" stroke-width="1.5" marker-end="url(#arrow)"/>
+            <text x="97" y="64" text-anchor="middle" class="uml-text-sm">確認下單</text>
+            <line x1="44" y1="105" x2="151" y2="105" stroke="var(--primary)" stroke-width="2.5" marker-end="url(#arrow)" class="uml-highlight-box"/>
+            <text x="97" y="99" text-anchor="middle" class="uml-text-sm" font-weight="700" fill="var(--primary)">建立訂單</text>
+            <line x1="159" y1="155" x2="291" y2="155" stroke="var(--primary)" stroke-width="2.5" marker-end="url(#arrow)" class="uml-highlight-box"/>
+            <text x="225" y="149" text-anchor="middle" class="uml-text-sm" font-weight="700" fill="var(--primary)">處理付款</text>
+            <line x1="291" y1="195" x2="159" y2="195" class="uml-line-dashed" marker-end="url(#arrow-open)"/>
+            <text x="225" y="189" text-anchor="middle" class="uml-text-sm">付款結果</text>
+            <line x1="151" y1="230" x2="44" y2="230" class="uml-line-dashed" marker-end="url(#arrow-open)"/>
+            <text x="97" y="224" text-anchor="middle" class="uml-text-sm">訂單確認</text>
+          </svg>
+          <a href="#ch5-3" class="demo-explain-link">&#128214; 查看序列圖解說</a>
+        </div>
+
+        <!-- UML Step 3: State Diagram -->
+        <div class="uml-panel" id="uml-panel-3">
+          <p style="font-weight:600;margin-bottom:0.5rem;">狀態圖 — 訂單狀態轉換</p>
+          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">訂單正在經歷狀態轉換。點「模擬下一步」看狀態如何改變。</p>
+          <svg viewBox="0 0 380 280" width="380">
+            <circle cx="30" cy="30" r="8" fill="var(--svg-stroke)"/>
+            <line x1="38" y1="30" x2="65" y2="30" class="uml-line" marker-end="url(#arrow)"/>
+            <rect x="65" y="15" width="80" height="30" rx="15" class="uml-fill" id="demo-state-0"/>
+            <text x="105" y="35" text-anchor="middle" class="uml-text-sm">已下單</text>
+            <line x1="145" y1="30" x2="175" y2="30" class="uml-line" marker-end="url(#arrow)"/>
+            <rect x="175" y="15" width="80" height="30" rx="15" class="uml-fill" id="demo-state-1"/>
+            <text x="215" y="35" text-anchor="middle" class="uml-text-sm">已接單</text>
+            <line x1="255" y1="30" x2="285" y2="30" class="uml-line" marker-end="url(#arrow)"/>
+            <rect x="285" y="15" width="80" height="30" rx="15" class="uml-fill" id="demo-state-2"/>
+            <text x="325" y="35" text-anchor="middle" class="uml-text-sm">製作中</text>
+            <text x="160" y="22" text-anchor="middle" class="uml-text-sm" fill="var(--text-muted)" font-size="9">接單</text>
+            <text x="270" y="22" text-anchor="middle" class="uml-text-sm" fill="var(--text-muted)" font-size="9">製作</text>
+            <line x1="325" y1="45" x2="325" y2="85" class="uml-line" marker-end="url(#arrow)"/>
+            <rect x="285" y="85" width="80" height="30" rx="15" class="uml-fill" id="demo-state-3"/>
+            <text x="325" y="105" text-anchor="middle" class="uml-text-sm">待取餐</text>
+            <text x="345" y="68" class="uml-text-sm" fill="var(--text-muted)" font-size="9">完成</text>
+            <line x1="285" y1="100" x2="255" y2="100" class="uml-line" marker-end="url(#arrow)"/>
+            <rect x="175" y="85" width="80" height="30" rx="15" class="uml-fill" id="demo-state-4"/>
+            <text x="215" y="105" text-anchor="middle" class="uml-text-sm">外送中</text>
+            <text x="270" y="92" text-anchor="middle" class="uml-text-sm" fill="var(--text-muted)" font-size="9">取餐</text>
+            <line x1="175" y1="100" x2="145" y2="100" class="uml-line" marker-end="url(#arrow)"/>
+            <rect x="65" y="85" width="80" height="30" rx="15" class="uml-fill" id="demo-state-5"/>
+            <text x="105" y="105" text-anchor="middle" class="uml-text-sm">已送達</text>
+            <text x="160" y="92" text-anchor="middle" class="uml-text-sm" fill="var(--text-muted)" font-size="9">送達</text>
+            <line x1="105" y1="115" x2="105" y2="150" class="uml-line" marker-end="url(#arrow)"/>
+            <rect x="65" y="150" width="80" height="30" rx="15" fill="var(--purple-bg)" stroke="var(--svg-stroke)" stroke-width="1.5" id="demo-state-6"/>
+            <text x="105" y="170" text-anchor="middle" class="uml-text-sm">已完成</text>
+            <text x="125" y="138" class="uml-text-sm" fill="var(--text-muted)" font-size="9">確認</text>
+          </svg>
+          <a href="#ch5-5" class="demo-explain-link">&#128214; 查看狀態圖解說</a>
+        </div>
+
+        <!-- UML Step 4: Class Diagram -->
+        <div class="uml-panel" id="uml-panel-4">
+          <p style="font-weight:600;margin-bottom:0.5rem;">類別圖 — 評價的類別關係</p>
+          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">訂單完成後，顧客可以對餐廳評價。看看這些類別之間的關係。</p>
+          <svg viewBox="0 0 380 250" width="380">
+            <rect x="10" y="10" width="110" height="75" class="uml-fill" rx="3"/>
+            <text x="65" y="30" text-anchor="middle" class="uml-text-sm" font-weight="700">顧客</text>
+            <line x1="10" y1="38" x2="120" y2="38" class="uml-line"/>
+            <text x="18" y="54" class="uml-text-sm" font-size="10">- 姓名</text>
+            <text x="18" y="68" class="uml-text-sm" font-size="10">- 電話</text>
+            <line x1="10" y1="74" x2="120" y2="74" class="uml-line"/>
+            <text x="18" y="83" class="uml-text-sm" font-size="10">+ 評價()</text>
+
+            <rect x="10" y="140" width="110" height="75" class="uml-fill-warn" rx="3"/>
+            <text x="65" y="160" text-anchor="middle" class="uml-text-sm" font-weight="700">訂單</text>
+            <line x1="10" y1="168" x2="120" y2="168" class="uml-line"/>
+            <text x="18" y="184" class="uml-text-sm" font-size="10">- 訂單編號</text>
+            <text x="18" y="198" class="uml-text-sm" font-size="10">- 總金額</text>
+
+            <rect x="200" y="75" width="120" height="90" class="uml-highlight-box" fill="var(--svg-fill)" rx="3"/>
+            <text x="260" y="95" text-anchor="middle" class="uml-text-sm" font-weight="700">評價</text>
+            <line x1="200" y1="103" x2="320" y2="103" stroke="var(--svg-stroke)" stroke-width="1.5"/>
+            <text x="208" y="119" class="uml-text-sm" font-size="10">- 星等: 1-5</text>
+            <text x="208" y="133" class="uml-text-sm" font-size="10">- 評論: 字串</text>
+            <line x1="200" y1="141" x2="320" y2="141" stroke="var(--svg-stroke)" stroke-width="1.5"/>
+            <text x="208" y="157" class="uml-text-sm" font-size="10">+ 送出評價()</text>
+
+            <!-- Customer 1 --- * Review -->
+            <line x1="120" y1="48" x2="200" y2="105" class="uml-line"/>
+            <text x="125" y="42" class="uml-text-sm" font-size="9">1</text>
+            <text x="190" y="98" class="uml-text-sm" font-size="9">*</text>
+
+            <!-- Order 1 --- 0..1 Review -->
+            <line x1="120" y1="175" x2="200" y2="135" class="uml-line"/>
+            <text x="125" y="170" class="uml-text-sm" font-size="9">1</text>
+            <text x="190" y="142" class="uml-text-sm" font-size="9">0..1</text>
+          </svg>
+          <a href="#ch5-4" class="demo-explain-link">&#128214; 查看類別圖解說</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer bar -->
+  <div class="demo-footer-bar" id="demo-footer">
+    <strong>&#128161; 目前步驟：</strong>
+    <span id="demo-footer-text">選擇一間你想訂餐的餐廳 — 對應 Use Case 圖中的「搜尋餐廳」</span>
+  </div>
+
+</section>
+
+</main>
+
+<!-- ========== JAVASCRIPT ========== -->
+<script>
+// Router
+function navigateTo(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+  const target = document.querySelector(`section[data-page="${pageId}"]`);
+  if (target) {
+    target.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+  const navLink = document.querySelector(`.sidebar-nav a[data-page="${pageId}"]`);
+  if (navLink) navLink.classList.add('active');
+  // Close mobile sidebar
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function getPageFromHash() {
+  const hash = window.location.hash.slice(1);
+  return hash || 'home';
+}
+
+window.addEventListener('hashchange', () => navigateTo(getPageFromHash()));
+window.addEventListener('DOMContentLoaded', () => navigateTo(getPageFromHash()));
+
+// Mobile sidebar toggle
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+
+// Practice question expand/collapse
+document.addEventListener('click', (e) => {
+  const toggle = e.target.closest('.question-toggle');
+  if (!toggle) return;
+  const answer = toggle.nextElementSibling;
+  const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+  toggle.setAttribute('aria-expanded', !isExpanded);
+  answer.hidden = isExpanded;
+});
+
+// ========== DEMO LOGIC ==========
+const menus = {
+  '好喝茶飲店': [
+    {icon:'&#129380;',name:'珍珠奶茶',price:55},{icon:'&#127861;',name:'鐵觀音拿鐵',price:65},
+    {icon:'&#129382;',name:'芒果冰沙',price:70},{icon:'&#127862;',name:'冬瓜檸檬',price:45},
+    {icon:'&#127856;',name:'抹茶歐蕾',price:60},{icon:'&#129371;',name:'百香果QQ',price:50}
+  ],
+  '阿明滷肉飯': [
+    {icon:'&#127834;',name:'滷肉飯',price:40},{icon:'&#127834;',name:'雞腿飯',price:85},
+    {icon:'&#127836;',name:'魚丸湯',price:30},{icon:'&#129388;',name:'燙青菜',price:35},
+    {icon:'&#127834;',name:'排骨飯',price:80},{icon:'&#129379;',name:'滷蛋',price:15}
+  ],
+  '義式手工披薩': [
+    {icon:'&#127829;',name:'瑪格麗特',price:220},{icon:'&#127829;',name:'夏威夷',price:250},
+    {icon:'&#129385;',name:'凱撒沙拉',price:120},{icon:'&#127829;',name:'四季披薩',price:280},
+    {icon:'&#127839;',name:'薯條',price:80},{icon:'&#129380;',name:'可樂',price:40}
+  ]
+};
+let selectedRestaurant = '';
+let cart = [];
+let orderPhase = 0;
+const footerTexts = [
+  '選擇一間你想訂餐的餐廳 — 對應 Use Case 圖中的「搜尋餐廳」',
+  '瀏覽菜單並選擇想吃的餐點 — 對應活動圖中的「選擇餐點加入購物車」',
+  '確認訂單內容並選擇付款方式 — 對應序列圖中「建立訂單」→「處理付款」的訊息流',
+  '追蹤訂單狀態的即時變化 — 對應狀態圖中的狀態轉換',
+  '為餐廳評價 — 對應類別圖中「評價」類別的關聯'
+];
+
+function goStep(n) {
+  document.querySelectorAll('.demo-step-btn').forEach((b,i) => b.classList.toggle('active', i===n));
+  document.querySelectorAll('.demo-ui').forEach((u,i) => u.classList.toggle('active', i===n));
+  document.querySelectorAll('.uml-panel').forEach((p,i) => p.classList.toggle('active', i===n));
+  document.getElementById('demo-footer-text').textContent = footerTexts[n];
+  if (n===1 && selectedRestaurant) buildMenu();
+  if (n===2) buildCartSummary();
+  if (n===3) { orderPhase=0; resetTimeline(); updateStateHighlight(); }
+}
+
+function selectRestaurant(el, name) {
+  document.querySelectorAll('.restaurant-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedRestaurant = name;
+  cart = [];
+  document.getElementById('btn-to-menu').disabled = false;
+}
+
+function buildMenu() {
+  const items = menus[selectedRestaurant] || [];
+  const grid = document.getElementById('menu-grid');
+  document.getElementById('menu-title').textContent = selectedRestaurant + ' — 菜單';
+  grid.innerHTML = items.map((it,i) =>
+    '<div class="menu-item" onclick="toggleItem(this,'+i+')" data-idx="'+i+'">' +
+    '<span class="m-icon">'+it.icon+'</span>' +
+    '<div class="m-name">'+it.name+'</div>' +
+    '<div class="m-price">$'+it.price+'</div></div>'
+  ).join('');
+  updateCartBtn();
+}
+
+function toggleItem(el, idx) {
+  const ci = cart.indexOf(idx);
+  if (ci >= 0) { cart.splice(ci,1); el.classList.remove('in-cart'); }
+  else { cart.push(idx); el.classList.add('in-cart');
+    if (!el.querySelector('.m-badge')) { el.insertAdjacentHTML('beforeend','<div class="m-badge">已加入</div>'); }
+  }
+  if (!el.classList.contains('in-cart')) { const b = el.querySelector('.m-badge'); if(b) b.remove(); }
+  updateCartBtn();
+}
+
+function updateCartBtn() {
+  document.getElementById('cart-count').textContent = cart.length;
+  document.getElementById('btn-to-cart').disabled = cart.length === 0;
+}
+
+function buildCartSummary() {
+  const items = menus[selectedRestaurant] || [];
+  const s = document.getElementById('cart-summary');
+  let total = 0;
+  let html = '';
+  cart.forEach(idx => {
+    const it = items[idx];
+    html += '<div class="cart-item"><span>'+it.name+'</span><span>$'+it.price+'</span></div>';
+    total += it.price;
+  });
+  html += '<div class="cart-total"><span>合計</span><span>$'+total+'</span></div>';
+  s.innerHTML = html;
+}
+
+function selectPay(el) {
+  document.querySelectorAll('.pay-method').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('btn-pay').disabled = false;
+}
+
+function startPayment() {
+  goStep(3);
+}
+
+function resetTimeline() {
+  const tl = document.getElementById('order-timeline');
+  const items = tl.querySelectorAll('.timeline-item');
+  items.forEach((it,i) => {
+    it.classList.remove('done','current');
+    if (i < 2) it.classList.add('done');
+    if (i === 2) it.classList.add('current');
+  });
+  document.getElementById('tracking-icon').innerHTML = '&#128666;';
+  document.getElementById('tracking-text').textContent = '訂單處理中...';
+  document.getElementById('tracking-detail').textContent = '餐廳正在準備您的餐點';
+}
+
+function advanceOrder() {
+  orderPhase++;
+  const tl = document.getElementById('order-timeline');
+  const items = tl.querySelectorAll('.timeline-item');
+  if (orderPhase >= items.length) { goStep(4); return; }
+  items.forEach((it,i) => {
+    it.classList.remove('done','current');
+    if (i < orderPhase + 2 && i < items.length) it.classList.add('done');
+  });
+  if (orderPhase + 2 < items.length) items[orderPhase + 2].classList.add('current');
+  const msgs = [
+    {icon:'&#128666;',text:'訂單處理中...',detail:'餐廳正在準備您的餐點'},
+    {icon:'&#128665;',text:'外送員已取餐',detail:'外送員正在前往您的位置'},
+    {icon:'&#127881;',text:'已送達！',detail:'外送員已將餐點送達'}
+  ];
+  const m = msgs[Math.min(orderPhase, msgs.length-1)];
+  document.getElementById('tracking-icon').innerHTML = m.icon;
+  document.getElementById('tracking-text').textContent = m.text;
+  document.getElementById('tracking-detail').textContent = m.detail;
+  updateStateHighlight();
+  if (orderPhase >= 3) { setTimeout(()=>goStep(4), 800); }
+}
+
+function updateStateHighlight() {
+  const stateIdx = orderPhase + 2;
+  for (let i = 0; i <= 6; i++) {
+    const el = document.getElementById('demo-state-'+i);
+    if (!el) continue;
+    if (i < stateIdx) { el.setAttribute('fill','var(--green-bg)'); el.setAttribute('stroke','var(--green)'); el.setAttribute('stroke-width','2'); }
+    else if (i === stateIdx) { el.setAttribute('fill','var(--primary-light)'); el.setAttribute('stroke','var(--primary)'); el.setAttribute('stroke-width','3'); }
+    else { el.setAttribute('fill','var(--svg-fill)'); el.setAttribute('stroke','var(--svg-stroke)'); el.setAttribute('stroke-width','1.5'); }
+  }
+}
+
+function setRating(n) {
+  const row = document.getElementById('star-row');
+  const stars = row.querySelectorAll('span');
+  stars.forEach((s,i) => { s.innerHTML = i < n ? '&#9733;' : '&#9734;'; s.style.color = i < n ? 'var(--amber)' : 'var(--text-muted)'; });
+  const msgs = ['','很差','普通','不錯','很好','非常好！'];
+  document.getElementById('rating-msg').textContent = n + ' 星 — ' + msgs[n];
+}
+
+function resetDemo() {
+  selectedRestaurant = '';
+  cart = [];
+  orderPhase = 0;
+  document.querySelectorAll('.restaurant-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('btn-to-menu').disabled = true;
+  document.getElementById('star-row').querySelectorAll('span').forEach(s => { s.innerHTML='&#9734;'; s.style.color=''; });
+  document.getElementById('rating-msg').textContent = '';
+  document.querySelectorAll('.pay-method').forEach(p => p.classList.remove('selected'));
+  document.getElementById('btn-pay').disabled = true;
+  goStep(0);
+}
+</script>
+</body>
+</html>
