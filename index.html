@@ -2318,9 +2318,9 @@ svg text {
 
   <!-- Step bar -->
   <div class="demo-steps">
-    <button class="demo-step-btn active" onclick="goStep(0)"><span class="step-num">步驟 1</span>選擇餐廳</button>
-    <button class="demo-step-btn" onclick="goStep(1)"><span class="step-num">步驟 2</span>選擇餐點</button>
-    <button class="demo-step-btn" onclick="goStep(2)"><span class="step-num">步驟 3</span>確認付款</button>
+    <button class="demo-step-btn active" onclick="goStep(0)"><span class="step-num">步驟 1</span>認識系統</button>
+    <button class="demo-step-btn" onclick="goStep(1)"><span class="step-num">步驟 2</span>點餐流程</button>
+    <button class="demo-step-btn" onclick="goStep(2)"><span class="step-num">步驟 3</span>下單付款</button>
     <button class="demo-step-btn" onclick="goStep(3)"><span class="step-num">步驟 4</span>訂單追蹤</button>
     <button class="demo-step-btn" onclick="goStep(4)"><span class="step-num">步驟 5</span>完成評價</button>
   </div>
@@ -2332,38 +2332,71 @@ svg text {
       <div class="demo-panel-header">&#128241; 點餐 App 模擬</div>
       <div class="demo-panel-body">
 
-        <!-- Step 0: Choose restaurant -->
+        <!-- Step 0: System overview -->
         <div class="demo-ui active" id="demo-ui-0">
-          <p style="font-weight:600;margin-bottom:0.75rem;">附近的餐廳</p>
-          <div class="restaurant-list">
-            <div class="restaurant-card" onclick="selectRestaurant(this, '好喝茶飲店')">
-              <span class="r-icon">&#129380;</span>
-              <div class="r-info"><h4>好喝茶飲店</h4><p>距離 0.8 km・約 15 分鐘</p></div>
-              <span class="r-rating">&#11088; 4.7</span>
+          <p style="font-weight:600;margin-bottom:0.5rem;">歡迎使用點餐外送系統</p>
+          <p style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:1rem;">這個系統有四種角色（Actor），各自可以執行不同的功能（Use Case）。</p>
+          <div class="feature-grid" style="grid-template-columns:1fr 1fr;gap:0.6rem;">
+            <div class="feature-card" style="padding:0.75rem;border-left:3px solid var(--primary);">
+              <h3 style="font-size:0.88rem;">&#128100; 顧客</h3>
+              <p style="font-size:0.78rem;">搜尋餐廳、下單、追蹤、評價</p>
             </div>
-            <div class="restaurant-card" onclick="selectRestaurant(this, '阿明滷肉飯')">
-              <span class="r-icon">&#127834;</span>
-              <div class="r-info"><h4>阿明滷肉飯</h4><p>距離 1.2 km・約 20 分鐘</p></div>
-              <span class="r-rating">&#11088; 4.5</span>
+            <div class="feature-card" style="padding:0.75rem;border-left:3px solid var(--green);">
+              <h3 style="font-size:0.88rem;color:var(--green);">&#127860; 餐廳</h3>
+              <p style="font-size:0.78rem;">管理菜單、處理訂單、查看報表</p>
             </div>
-            <div class="restaurant-card" onclick="selectRestaurant(this, '義式手工披薩')">
-              <span class="r-icon">&#127829;</span>
-              <div class="r-info"><h4>義式手工披薩</h4><p>距離 2.0 km・約 25 分鐘</p></div>
-              <span class="r-rating">&#11088; 4.8</span>
+            <div class="feature-card" style="padding:0.75rem;border-left:3px solid var(--amber);">
+              <h3 style="font-size:0.88rem;color:var(--amber);">&#128665; 外送員</h3>
+              <p style="font-size:0.78rem;">接受派單、取餐、送達確認</p>
+            </div>
+            <div class="feature-card" style="padding:0.75rem;border-left:3px solid var(--purple);">
+              <h3 style="font-size:0.88rem;color:var(--purple);">&#128736; 管理員</h3>
+              <p style="font-size:0.78rem;">審核餐廳、處理客訴、管理帳號</p>
             </div>
           </div>
+          <div class="callout green" style="margin-top:1rem;">
+            <p style="font-size:0.85rem;margin:0;"><strong>你的角色：顧客</strong>。接下來你會以顧客身份體驗整個點餐流程，看看每一步對應哪種 UML 圖。</p>
+          </div>
           <div style="margin-top:1rem;text-align:right;">
-            <button class="demo-btn demo-btn-primary" id="btn-to-menu" disabled onclick="goStep(1)">選好了，看菜單 &#8594;</button>
+            <button class="demo-btn demo-btn-primary" onclick="goStep(1)">開始點餐 &#8594;</button>
           </div>
         </div>
 
-        <!-- Step 1: Choose items -->
+        <!-- Step 1: Select restaurant + menu items (combined) -->
         <div class="demo-ui" id="demo-ui-1">
-          <p style="font-weight:600;margin-bottom:0.5rem;" id="menu-title">菜單</p>
-          <div class="menu-grid" id="menu-grid"></div>
-          <div style="margin-top:1rem;display:flex;justify-content:space-between;">
-            <button class="demo-btn demo-btn-outline" onclick="goStep(0)">&#8592; 換餐廳</button>
-            <button class="demo-btn demo-btn-primary" id="btn-to-cart" disabled onclick="goStep(2)">前往結帳 (<span id="cart-count">0</span>) &#8594;</button>
+          <!-- Sub-step A: restaurant selection -->
+          <div id="substep-restaurant">
+            <p style="font-weight:600;margin-bottom:0.75rem;">選擇餐廳</p>
+            <div class="restaurant-list">
+              <div class="restaurant-card" onclick="selectRestaurant(this, '好喝茶飲店')">
+                <span class="r-icon">&#129380;</span>
+                <div class="r-info"><h4>好喝茶飲店</h4><p>距離 0.8 km・約 15 分鐘</p></div>
+                <span class="r-rating">&#11088; 4.7</span>
+              </div>
+              <div class="restaurant-card" onclick="selectRestaurant(this, '阿明滷肉飯')">
+                <span class="r-icon">&#127834;</span>
+                <div class="r-info"><h4>阿明滷肉飯</h4><p>距離 1.2 km・約 20 分鐘</p></div>
+                <span class="r-rating">&#11088; 4.5</span>
+              </div>
+              <div class="restaurant-card" onclick="selectRestaurant(this, '義式手工披薩')">
+                <span class="r-icon">&#127829;</span>
+                <div class="r-info"><h4>義式手工披薩</h4><p>距離 2.0 km・約 25 分鐘</p></div>
+                <span class="r-rating">&#11088; 4.8</span>
+              </div>
+            </div>
+            <div style="margin-top:1rem;display:flex;justify-content:space-between;">
+              <button class="demo-btn demo-btn-outline" onclick="goStep(0)">&#8592; 返回</button>
+              <button class="demo-btn demo-btn-primary" id="btn-to-menu" disabled onclick="showMenu()">查看菜單 &#8594;</button>
+            </div>
+          </div>
+          <!-- Sub-step B: menu items -->
+          <div id="substep-menu" style="display:none;">
+            <p style="font-weight:600;margin-bottom:0.5rem;" id="menu-title">菜單</p>
+            <div class="menu-grid" id="menu-grid"></div>
+            <div style="margin-top:1rem;display:flex;justify-content:space-between;">
+              <button class="demo-btn demo-btn-outline" onclick="backToRestaurants()">&#8592; 換餐廳</button>
+              <button class="demo-btn demo-btn-primary" id="btn-to-cart" disabled onclick="goStep(2)">前往結帳 (<span id="cart-count">0</span>) &#8594;</button>
+            </div>
           </div>
         </div>
 
@@ -2433,47 +2466,76 @@ svg text {
       <div class="demo-panel-header">&#128202; 對應 UML 圖</div>
       <div class="demo-panel-body">
 
-        <!-- UML Step 0: Use Case -->
+        <!-- UML Step 0: Use Case (full system) -->
         <div class="uml-panel active" id="uml-panel-0">
-          <p style="font-weight:600;margin-bottom:0.5rem;">Use Case 圖 — 搜尋餐廳</p>
-          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">你正在執行「搜尋餐廳」這個 Use Case。顧客與系統互動，瀏覽可用的餐廳。</p>
-          <svg viewBox="0 0 380 220" width="380">
-            <rect x="100" y="10" width="240" height="200" rx="8" fill="none" stroke="var(--svg-stroke)" stroke-width="1" stroke-dasharray="5,3"/>
-            <text x="220" y="32" text-anchor="middle" class="uml-text-sm" fill="var(--text-muted)">點餐外送系統</text>
-            <use href="#actor" x="15" y="55" width="35" height="52"/>
-            <text x="33" y="123" text-anchor="middle" class="uml-text" font-weight="600">顧客</text>
-            <ellipse cx="220" cy="75" rx="75" ry="22" class="uml-highlight-box" fill="var(--svg-fill)"/>
-            <text x="220" y="80" text-anchor="middle" class="uml-text" font-weight="600">搜尋餐廳</text>
-            <ellipse cx="220" cy="130" rx="75" ry="22" class="uml-fill" style="opacity:0.4"/>
-            <text x="220" y="135" text-anchor="middle" class="uml-text" style="opacity:0.4">下單點餐</text>
-            <ellipse cx="220" cy="180" rx="75" ry="22" class="uml-fill" style="opacity:0.4"/>
-            <text x="220" y="185" text-anchor="middle" class="uml-text" style="opacity:0.4">追蹤訂單</text>
-            <line x1="50" y1="82" x2="145" y2="75" class="uml-line" stroke-width="2" stroke="var(--primary)"/>
-            <line x1="50" y1="85" x2="145" y2="130" class="uml-line" style="opacity:0.3"/>
-            <line x1="50" y1="88" x2="145" y2="180" class="uml-line" style="opacity:0.3"/>
+          <p style="font-weight:600;margin-bottom:0.5rem;">Use Case 圖 — 系統全貌</p>
+          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">Use Case 圖呈現系統有哪些<strong>角色</strong>和<strong>功能</strong>。左邊四個角色對應右邊的橢圓（功能）。</p>
+          <svg viewBox="0 0 400 340" width="400">
+            <rect x="80" y="10" width="240" height="320" rx="8" fill="none" stroke="var(--svg-stroke)" stroke-width="1" stroke-dasharray="5,3"/>
+            <text x="200" y="30" text-anchor="middle" class="uml-text-sm" fill="var(--text-muted)">點餐外送系統</text>
+            <!-- Actors -->
+            <use href="#actor" x="5" y="40" width="30" height="45"/>
+            <text x="20" y="98" text-anchor="middle" class="uml-text-sm" font-weight="600">顧客</text>
+            <use href="#actor" x="5" y="200" width="30" height="45"/>
+            <text x="20" y="258" text-anchor="middle" class="uml-text-sm" font-weight="600">外送員</text>
+            <use href="#actor" x="365" y="40" width="30" height="45"/>
+            <text x="380" y="98" text-anchor="middle" class="uml-text-sm" font-weight="600">餐廳</text>
+            <use href="#actor" x="365" y="200" width="30" height="45"/>
+            <text x="380" y="258" text-anchor="middle" class="uml-text-sm" font-weight="600">管理員</text>
+            <!-- Use Cases -->
+            <ellipse cx="195" cy="65" rx="62" ry="18" class="uml-fill"/>
+            <text x="195" y="70" text-anchor="middle" class="uml-text-sm">搜尋餐廳</text>
+            <ellipse cx="195" cy="110" rx="62" ry="18" class="uml-fill"/>
+            <text x="195" y="115" text-anchor="middle" class="uml-text-sm">下單點餐</text>
+            <ellipse cx="195" cy="155" rx="62" ry="18" class="uml-fill"/>
+            <text x="195" y="160" text-anchor="middle" class="uml-text-sm">追蹤訂單</text>
+            <ellipse cx="195" cy="200" rx="62" ry="18" class="uml-fill-alt"/>
+            <text x="195" y="205" text-anchor="middle" class="uml-text-sm">處理訂單</text>
+            <ellipse cx="195" cy="245" rx="62" ry="18" class="uml-fill-warn"/>
+            <text x="195" y="250" text-anchor="middle" class="uml-text-sm">接受派單</text>
+            <ellipse cx="195" cy="290" rx="62" ry="18" class="uml-fill-purple"/>
+            <text x="195" y="295" text-anchor="middle" class="uml-text-sm">管理帳號</text>
+            <!-- Lines -->
+            <line x1="35" y1="65" x2="133" y2="65" class="uml-line"/>
+            <line x1="35" y1="68" x2="133" y2="110" class="uml-line"/>
+            <line x1="35" y1="70" x2="133" y2="155" class="uml-line"/>
+            <line x1="365" y1="68" x2="257" y2="200" class="uml-line"/>
+            <line x1="35" y1="225" x2="133" y2="155" class="uml-line"/>
+            <line x1="35" y1="228" x2="133" y2="245" class="uml-line"/>
+            <line x1="365" y1="228" x2="257" y2="290" class="uml-line"/>
           </svg>
           <a href="#ch5-2" class="demo-explain-link">&#128214; 查看 Use Case 圖解說</a>
         </div>
 
-        <!-- UML Step 1: Activity Diagram -->
+        <!-- UML Step 1: Activity Diagram (full ordering flow) -->
         <div class="uml-panel" id="uml-panel-1">
-          <p style="font-weight:600;margin-bottom:0.5rem;">活動圖 — 選餐點加入購物車</p>
-          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">你正在「選擇餐點加入購物車」活動中，這是顧客水道裡的第二步。</p>
-          <svg viewBox="0 0 340 280" width="340">
-            <rect x="10" y="10" width="320" height="260" fill="rgba(37,99,235,0.04)" stroke="var(--border)" stroke-width="1" rx="6"/>
+          <p style="font-weight:600;margin-bottom:0.5rem;">活動圖 — 點餐流程</p>
+          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">你正在走訂餐流程。<span id="activity-highlight-text" style="color:var(--primary);font-weight:600;">目前在「瀏覽餐廳與菜單」</span></p>
+          <svg viewBox="0 0 340 310" width="340">
+            <rect x="10" y="10" width="320" height="290" fill="rgba(37,99,235,0.04)" stroke="var(--border)" stroke-width="1" rx="6"/>
             <text x="170" y="30" text-anchor="middle" class="uml-text-sm" fill="var(--primary)" font-weight="600">顧客水道</text>
+            <!-- Start -->
             <circle cx="170" cy="50" r="8" fill="var(--svg-stroke)"/>
             <line x1="170" y1="58" x2="170" y2="72" class="uml-line" marker-end="url(#arrow)"/>
-            <rect x="100" y="72" width="140" height="30" rx="15" class="uml-fill" style="opacity:0.4"/>
-            <text x="170" y="92" text-anchor="middle" class="uml-text-sm" style="opacity:0.5">瀏覽餐廳與菜單</text>
+            <!-- Activity 1: Browse -->
+            <rect x="80" y="72" width="180" height="30" rx="15" id="act-node-0" class="uml-highlight-box" fill="var(--svg-fill)"/>
+            <text x="170" y="92" text-anchor="middle" class="uml-text-sm" font-weight="600">瀏覽餐廳與菜單</text>
             <line x1="170" y1="102" x2="170" y2="120" class="uml-line" marker-end="url(#arrow)"/>
-            <rect x="80" y="120" width="180" height="30" rx="15" class="uml-highlight-box" fill="var(--svg-fill)"/>
-            <text x="170" y="140" text-anchor="middle" class="uml-text-sm" font-weight="600">選擇餐點加入購物車</text>
+            <!-- Activity 2: Add to cart -->
+            <rect x="80" y="120" width="180" height="30" rx="15" id="act-node-1" class="uml-fill"/>
+            <text x="170" y="140" text-anchor="middle" class="uml-text-sm">選擇餐點加入購物車</text>
             <line x1="170" y1="150" x2="170" y2="168" class="uml-line" marker-end="url(#arrow)"/>
-            <rect x="90" y="168" width="160" height="30" rx="15" class="uml-fill" style="opacity:0.4"/>
+            <!-- Activity 3: Confirm -->
+            <rect x="80" y="168" width="180" height="30" rx="15" id="act-node-2" class="uml-fill" style="opacity:0.4"/>
             <text x="170" y="188" text-anchor="middle" class="uml-text-sm" style="opacity:0.5">確認訂單與付款</text>
-            <line x1="170" y1="198" x2="170" y2="216" class="uml-line" style="opacity:0.3"/>
-            <text x="170" y="230" text-anchor="middle" class="uml-text-sm" style="opacity:0.3">...</text>
+            <line x1="170" y1="198" x2="170" y2="216" class="uml-line" style="opacity:0.3" marker-end="url(#arrow)"/>
+            <!-- Activity 4: Track -->
+            <rect x="80" y="216" width="180" height="30" rx="15" id="act-node-3" class="uml-fill" style="opacity:0.4"/>
+            <text x="170" y="236" text-anchor="middle" class="uml-text-sm" style="opacity:0.5">追蹤訂單</text>
+            <line x1="170" y1="246" x2="170" y2="264" class="uml-line" style="opacity:0.3" marker-end="url(#arrow)"/>
+            <!-- End -->
+            <circle cx="170" cy="274" r="8" fill="none" stroke="var(--svg-stroke)" stroke-width="2" style="opacity:0.4"/>
+            <circle cx="170" cy="274" r="5" fill="var(--svg-stroke)" style="opacity:0.4"/>
           </svg>
           <a href="#ch5-1" class="demo-explain-link">&#128214; 查看活動圖解說</a>
         </div>
@@ -2665,11 +2727,11 @@ let selectedRestaurant = '';
 let cart = [];
 let orderPhase = 0;
 const footerTexts = [
-  '選擇一間你想訂餐的餐廳 — 對應 Use Case 圖中的「搜尋餐廳」',
-  '瀏覽菜單並選擇想吃的餐點 — 對應活動圖中的「選擇餐點加入購物車」',
-  '確認訂單內容並選擇付款方式 — 對應序列圖中「建立訂單」→「處理付款」的訊息流',
-  '追蹤訂單狀態的即時變化 — 對應狀態圖中的狀態轉換',
-  '為餐廳評價 — 對應類別圖中「評價」類別的關聯'
+  '認識系統全貌 — Use Case 圖呈現所有角色（Actor）與功能（Use Case）的關係',
+  '走訂餐流程 — 活動圖描繪流程中每一步的順序與分支',
+  '系統內部互動 — 序列圖展示物件之間訊息傳遞的時間順序',
+  '狀態即時變化 — 狀態圖描述事件如何觸發訂單狀態的轉換',
+  '類別之間的關係 — 類別圖呈現顧客、訂單、評價之間的關聯與多重性'
 ];
 
 function goStep(n) {
@@ -2677,9 +2739,45 @@ function goStep(n) {
   document.querySelectorAll('.demo-ui').forEach((u,i) => u.classList.toggle('active', i===n));
   document.querySelectorAll('.uml-panel').forEach((p,i) => p.classList.toggle('active', i===n));
   document.getElementById('demo-footer-text').textContent = footerTexts[n];
-  if (n===1 && selectedRestaurant) buildMenu();
+  // Step 1: show restaurant sub-step by default
+  if (n===1) {
+    document.getElementById('substep-restaurant').style.display = '';
+    document.getElementById('substep-menu').style.display = 'none';
+    highlightActivity(0);
+  }
   if (n===2) buildCartSummary();
   if (n===3) { orderPhase=0; resetTimeline(); updateStateHighlight(); }
+}
+
+function highlightActivity(idx) {
+  const labels = ['目前在「瀏覽餐廳與菜單」','目前在「選擇餐點加入購物車」','目前在「確認訂單與付款」','目前在「追蹤訂單」'];
+  const el = document.getElementById('activity-highlight-text');
+  if (el && labels[idx]) el.textContent = labels[idx];
+  for (let i = 0; i < 4; i++) {
+    const node = document.getElementById('act-node-'+i);
+    if (!node) continue;
+    if (i === idx) {
+      node.setAttribute('class','uml-highlight-box');
+      node.setAttribute('fill','var(--svg-fill)');
+      node.style.opacity = '1';
+      const txt = node.nextElementSibling;
+      if (txt) { txt.style.opacity='1'; txt.setAttribute('font-weight','600'); }
+    } else if (i < idx) {
+      node.setAttribute('class','uml-fill');
+      node.setAttribute('fill','var(--green-bg)');
+      node.setAttribute('stroke','var(--green)');
+      node.style.opacity = '1';
+      const txt = node.nextElementSibling;
+      if (txt) { txt.style.opacity='1'; txt.setAttribute('font-weight','normal'); }
+    } else {
+      node.setAttribute('class','uml-fill');
+      node.setAttribute('fill','var(--svg-fill)');
+      node.setAttribute('stroke','var(--svg-stroke)');
+      node.style.opacity = '0.4';
+      const txt = node.nextElementSibling;
+      if (txt) { txt.style.opacity='0.5'; txt.setAttribute('font-weight','normal'); }
+    }
+  }
 }
 
 function selectRestaurant(el, name) {
@@ -2688,6 +2786,19 @@ function selectRestaurant(el, name) {
   selectedRestaurant = name;
   cart = [];
   document.getElementById('btn-to-menu').disabled = false;
+}
+
+function showMenu() {
+  buildMenu();
+  document.getElementById('substep-restaurant').style.display = 'none';
+  document.getElementById('substep-menu').style.display = '';
+  highlightActivity(1);
+}
+
+function backToRestaurants() {
+  document.getElementById('substep-restaurant').style.display = '';
+  document.getElementById('substep-menu').style.display = 'none';
+  highlightActivity(0);
 }
 
 function buildMenu() {
