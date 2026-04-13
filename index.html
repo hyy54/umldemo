@@ -2569,14 +2569,20 @@ svg text {
             <line x1="151" y1="230" x2="44" y2="230" class="uml-line-dashed" marker-end="url(#arrow-open)"/>
             <text x="97" y="224" text-anchor="middle" class="uml-text-sm">訂單確認</text>
           </svg>
-          <a href="#ch5-3" class="demo-explain-link">&#128214; 查看序列圖解說</a>
+          <!-- MDA hint -->
+          <div style="margin-top:0.75rem;padding:0.65rem 0.75rem;background:var(--purple-bg);border-left:3px solid var(--purple);border-radius:0 6px 6px 0;font-size:0.8rem;">
+            <p style="margin:0 0 0.3rem;font-weight:700;color:var(--purple);">MDA 視角</p>
+            <p style="margin:0;color:var(--text-secondary);font-size:0.78rem;">這張序列圖屬於 <strong>PIM</strong>（平台獨立模型）— 描述物件互動邏輯，但不指定用 Java 或 Python。如果改成「用 Django REST API 呼叫 Stripe SDK」就變成 <strong>PSM</strong>（平台特定模型）。</p>
+          </div>
+          <a href="#ch5-3" class="demo-explain-link" style="margin-right:0.5rem;">&#128214; 查看序列圖解說</a>
+          <a href="#ch5-6" class="demo-explain-link">&#128214; 查看 MDA 解說</a>
         </div>
 
-        <!-- UML Step 3: State Diagram -->
+        <!-- UML Step 3: State Diagram + Event-driven vs Data-driven -->
         <div class="uml-panel" id="uml-panel-3">
           <p style="font-weight:600;margin-bottom:0.5rem;">狀態圖 — 訂單狀態轉換</p>
-          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">訂單正在經歷狀態轉換。點「模擬下一步」看狀態如何改變。</p>
-          <svg viewBox="0 0 380 280" width="380">
+          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">每個箭頭旁的文字是觸發轉換的<strong>事件</strong>。點「模擬下一步」看狀態如何改變。</p>
+          <svg viewBox="0 0 380 200" width="380">
             <circle cx="30" cy="30" r="8" fill="var(--svg-stroke)"/>
             <line x1="38" y1="30" x2="65" y2="30" class="uml-line" marker-end="url(#arrow)"/>
             <rect x="65" y="15" width="80" height="30" rx="15" class="uml-fill" id="demo-state-0"/>
@@ -2606,46 +2612,148 @@ svg text {
             <text x="105" y="170" text-anchor="middle" class="uml-text-sm">已完成</text>
             <text x="125" y="138" class="uml-text-sm" fill="var(--text-muted)" font-size="9">確認</text>
           </svg>
+          <!-- Event-driven vs Data-driven -->
+          <div style="margin-top:0.75rem;padding:0.65rem 0.75rem;background:var(--amber-bg);border-left:3px solid var(--amber);border-radius:0 6px 6px 0;font-size:0.8rem;">
+            <p style="margin:0 0 0.4rem;font-weight:700;color:var(--amber);">事件驅動 vs 資料驅動</p>
+            <table style="width:100%;font-size:0.78rem;border-collapse:collapse;">
+              <tr><td style="padding:0.2rem 0;width:50%;"><strong>事件驅動</strong>（本範例）</td><td style="padding:0.2rem 0;"><strong>資料驅動</strong></td></tr>
+              <tr style="color:var(--text-secondary);"><td style="padding:0.15rem 0;">「接單」事件觸發狀態轉換</td><td style="padding:0.15rem 0;">訂單資料輸入觸發處理流程</td></tr>
+              <tr style="color:var(--text-secondary);"><td style="padding:0.15rem 0;">適合：即時系統、UI 互動</td><td style="padding:0.15rem 0;">適合：報表系統、ETL 流程</td></tr>
+              <tr style="color:var(--text-secondary);"><td style="padding:0.15rem 0;">模型：狀態圖</td><td style="padding:0.15rem 0;">模型：資料流圖（DFD）</td></tr>
+            </table>
+          </div>
           <a href="#ch5-5" class="demo-explain-link">&#128214; 查看狀態圖解說</a>
         </div>
 
-        <!-- UML Step 4: Class Diagram -->
+        <!-- UML Step 4: Class Diagram (full relationships) -->
         <div class="uml-panel" id="uml-panel-4">
-          <p style="font-weight:600;margin-bottom:0.5rem;">類別圖 — 評價的類別關係</p>
-          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;">訂單完成後，顧客可以對餐廳評價。看看這些類別之間的關係。</p>
-          <svg viewBox="0 0 380 250" width="380">
-            <rect x="10" y="10" width="110" height="75" class="uml-fill" rx="3"/>
-            <text x="65" y="30" text-anchor="middle" class="uml-text-sm" font-weight="700">顧客</text>
-            <line x1="10" y1="38" x2="120" y2="38" class="uml-line"/>
-            <text x="18" y="54" class="uml-text-sm" font-size="10">- 姓名</text>
-            <text x="18" y="68" class="uml-text-sm" font-size="10">- 電話</text>
-            <line x1="10" y1="74" x2="120" y2="74" class="uml-line"/>
-            <text x="18" y="83" class="uml-text-sm" font-size="10">+ 評價()</text>
+          <p style="font-weight:600;margin-bottom:0.5rem;">類別圖 — 四種關係全覽</p>
+          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">這張圖展示了類別之間的四種關係和多重性標記。</p>
+          <svg viewBox="0 0 420 440" width="420">
+            <!-- ===== Class: Customer ===== -->
+            <rect x="10" y="10" width="130" height="72" class="uml-fill" rx="3"/>
+            <text x="75" y="28" text-anchor="middle" class="uml-text-sm" font-weight="700">顧客</text>
+            <line x1="10" y1="35" x2="140" y2="35" class="uml-line"/>
+            <text x="17" y="50" class="uml-text-sm" font-size="10">- 姓名: 字串</text>
+            <text x="17" y="63" class="uml-text-sm" font-size="10">- 電話: 字串</text>
+            <line x1="10" y1="68" x2="140" y2="68" class="uml-line"/>
+            <text x="17" y="80" class="uml-text-sm" font-size="10">+ 下單()</text>
 
-            <rect x="10" y="140" width="110" height="75" class="uml-fill-warn" rx="3"/>
-            <text x="65" y="160" text-anchor="middle" class="uml-text-sm" font-weight="700">訂單</text>
-            <line x1="10" y1="168" x2="120" y2="168" class="uml-line"/>
-            <text x="18" y="184" class="uml-text-sm" font-size="10">- 訂單編號</text>
-            <text x="18" y="198" class="uml-text-sm" font-size="10">- 總金額</text>
+            <!-- ===== Class: Order ===== -->
+            <rect x="10" y="130" width="130" height="85" class="uml-fill" rx="3"/>
+            <text x="75" y="148" text-anchor="middle" class="uml-text-sm" font-weight="700">訂單</text>
+            <line x1="10" y1="155" x2="140" y2="155" class="uml-line"/>
+            <text x="17" y="170" class="uml-text-sm" font-size="10">- 訂單編號: 字串</text>
+            <text x="17" y="183" class="uml-text-sm" font-size="10">- 總金額: 數值</text>
+            <text x="17" y="196" class="uml-text-sm" font-size="10">- 狀態: 字串</text>
+            <line x1="10" y1="201" x2="140" y2="201" class="uml-line"/>
+            <text x="17" y="213" class="uml-text-sm" font-size="10">+ 取消訂單()</text>
 
-            <rect x="200" y="75" width="120" height="90" class="uml-highlight-box" fill="var(--svg-fill)" rx="3"/>
-            <text x="260" y="95" text-anchor="middle" class="uml-text-sm" font-weight="700">評價</text>
-            <line x1="200" y1="103" x2="320" y2="103" stroke="var(--svg-stroke)" stroke-width="1.5"/>
-            <text x="208" y="119" class="uml-text-sm" font-size="10">- 星等: 1-5</text>
-            <text x="208" y="133" class="uml-text-sm" font-size="10">- 評論: 字串</text>
-            <line x1="200" y1="141" x2="320" y2="141" stroke="var(--svg-stroke)" stroke-width="1.5"/>
-            <text x="208" y="157" class="uml-text-sm" font-size="10">+ 送出評價()</text>
+            <!-- ===== Class: OrderItem ===== -->
+            <rect x="10" y="280" width="130" height="72" class="uml-fill" rx="3"/>
+            <text x="75" y="298" text-anchor="middle" class="uml-text-sm" font-weight="700">訂單品項</text>
+            <line x1="10" y1="305" x2="140" y2="305" class="uml-line"/>
+            <text x="17" y="320" class="uml-text-sm" font-size="10">- 數量: 整數</text>
+            <text x="17" y="333" class="uml-text-sm" font-size="10">- 單價: 數值</text>
+            <line x1="10" y1="338" x2="140" y2="338" class="uml-line"/>
+            <text x="17" y="350" class="uml-text-sm" font-size="10">+ 小計()</text>
 
-            <!-- Customer 1 --- * Review -->
-            <line x1="120" y1="48" x2="200" y2="105" class="uml-line"/>
-            <text x="125" y="42" class="uml-text-sm" font-size="9">1</text>
-            <text x="190" y="98" class="uml-text-sm" font-size="9">*</text>
+            <!-- ===== Class: Review ===== -->
+            <rect x="240" y="10" width="130" height="72" class="uml-highlight-box" fill="var(--svg-fill)" rx="3"/>
+            <text x="305" y="28" text-anchor="middle" class="uml-text-sm" font-weight="700">評價</text>
+            <line x1="240" y1="35" x2="370" y2="35" stroke="var(--svg-stroke)" stroke-width="1.5"/>
+            <text x="247" y="50" class="uml-text-sm" font-size="10">- 星等: 1~5</text>
+            <text x="247" y="63" class="uml-text-sm" font-size="10">- 評論: 字串</text>
+            <line x1="240" y1="68" x2="370" y2="68" stroke="var(--svg-stroke)" stroke-width="1.5"/>
+            <text x="247" y="80" class="uml-text-sm" font-size="10">+ 送出()</text>
 
-            <!-- Order 1 --- 0..1 Review -->
-            <line x1="120" y1="175" x2="200" y2="135" class="uml-line"/>
-            <text x="125" y="170" class="uml-text-sm" font-size="9">1</text>
-            <text x="190" y="142" class="uml-text-sm" font-size="9">0..1</text>
+            <!-- ===== Class: MenuItem (parent) ===== -->
+            <rect x="240" y="160" width="130" height="72" class="uml-fill-alt" rx="3"/>
+            <text x="305" y="178" text-anchor="middle" class="uml-text-sm" font-weight="700">菜單品項</text>
+            <line x1="240" y1="185" x2="370" y2="185" class="uml-line"/>
+            <text x="247" y="200" class="uml-text-sm" font-size="10">- 品名: 字串</text>
+            <text x="247" y="213" class="uml-text-sm" font-size="10">- 價格: 數值</text>
+            <line x1="240" y1="218" x2="370" y2="218" class="uml-line"/>
+            <text x="247" y="230" class="uml-text-sm" font-size="10">+ 是否可供應()</text>
+
+            <!-- ===== Subclass: Food ===== -->
+            <rect x="210" y="310" width="80" height="50" class="uml-fill-alt" rx="3"/>
+            <text x="250" y="328" text-anchor="middle" class="uml-text-sm" font-weight="700">食物</text>
+            <line x1="210" y1="335" x2="290" y2="335" class="uml-line"/>
+            <text x="217" y="350" class="uml-text-sm" font-size="10">- 烹飪時間</text>
+
+            <!-- ===== Subclass: Drink ===== -->
+            <rect x="310" y="310" width="80" height="50" class="uml-fill-alt" rx="3"/>
+            <text x="350" y="328" text-anchor="middle" class="uml-text-sm" font-weight="700">飲料</text>
+            <line x1="310" y1="335" x2="390" y2="335" class="uml-line"/>
+            <text x="317" y="350" class="uml-text-sm" font-size="10">- 甜度/冰量</text>
+
+            <!-- ========== RELATIONSHIPS ========== -->
+
+            <!-- 1. Association: Customer 1 --- * Order -->
+            <line x1="75" y1="82" x2="75" y2="130" class="uml-line"/>
+            <text x="60" y="95" class="uml-text-sm" font-size="9" fill="var(--primary)">1</text>
+            <text x="60" y="127" class="uml-text-sm" font-size="9" fill="var(--primary)">*</text>
+            <text x="95" y="110" class="uml-text-sm" font-size="8" fill="var(--text-muted)">關聯</text>
+
+            <!-- 2. Composition: Order 1 ◆--- 1..* OrderItem -->
+            <line x1="75" y1="215" x2="75" y2="280" class="uml-line" marker-start="url(#diamond-filled)"/>
+            <text x="60" y="237" class="uml-text-sm" font-size="9" fill="var(--primary)">1</text>
+            <text x="55" y="275" class="uml-text-sm" font-size="9" fill="var(--primary)">1..*</text>
+            <text x="95" y="255" class="uml-text-sm" font-size="8" fill="var(--red)">組合 ◆</text>
+
+            <!-- 3. Association: Customer 1 --- * Review -->
+            <line x1="140" y1="46" x2="240" y2="46" class="uml-line"/>
+            <text x="148" y="42" class="uml-text-sm" font-size="9" fill="var(--primary)">1</text>
+            <text x="228" y="42" class="uml-text-sm" font-size="9" fill="var(--primary)">*</text>
+            <text x="190" y="40" text-anchor="middle" class="uml-text-sm" font-size="8" fill="var(--text-muted)">關聯</text>
+
+            <!-- 4. Association: Order 1 --- 0..1 Review -->
+            <line x1="140" y1="155" x2="190" y2="155" class="uml-line"/>
+            <line x1="190" y1="155" x2="190" y2="60" class="uml-line"/>
+            <line x1="190" y1="60" x2="240" y2="60" class="uml-line"/>
+            <text x="148" y="150" class="uml-text-sm" font-size="9" fill="var(--primary)">1</text>
+            <text x="228" y="56" class="uml-text-sm" font-size="9" fill="var(--primary)">0..1</text>
+
+            <!-- 5. Association: OrderItem * --- 1 MenuItem -->
+            <line x1="140" y1="320" x2="175" y2="320" class="uml-line"/>
+            <line x1="175" y1="320" x2="175" y2="200" class="uml-line"/>
+            <line x1="175" y1="200" x2="240" y2="200" class="uml-line"/>
+            <text x="148" y="315" class="uml-text-sm" font-size="9" fill="var(--primary)">*</text>
+            <text x="228" y="196" class="uml-text-sm" font-size="9" fill="var(--primary)">1</text>
+
+            <!-- 6. Inheritance: Food, Drink --> MenuItem -->
+            <line x1="305" y1="232" x2="305" y2="270" class="uml-line"/>
+            <line x1="250" y1="310" x2="250" y2="270" class="uml-line"/>
+            <line x1="350" y1="310" x2="350" y2="270" class="uml-line"/>
+            <line x1="250" y1="270" x2="350" y2="270" class="uml-line"/>
+            <polygon points="305,232 296,250 314,250" fill="#fff" stroke="var(--svg-stroke)" stroke-width="1.5"/>
+            <text x="340" y="260" class="uml-text-sm" font-size="8" fill="var(--green)">繼承 △</text>
           </svg>
+
+          <!-- Legend -->
+          <div style="margin-top:0.5rem;padding:0.65rem 0.75rem;background:var(--code-bg);border-radius:6px;font-size:0.78rem;">
+            <p style="margin:0 0 0.3rem;font-weight:700;">四種關係對照</p>
+            <table style="width:100%;font-size:0.78rem;border-collapse:collapse;">
+              <tr>
+                <td style="padding:0.2rem 0;width:50%;"><strong>━━</strong> 關聯（Association）</td>
+                <td style="padding:0.2rem 0;"><strong>◆━</strong> <span style="color:var(--red);">組合</span>（Composition）</td>
+              </tr>
+              <tr>
+                <td style="padding:0.2rem 0;"><strong>△━</strong> <span style="color:var(--green);">繼承</span>（Inheritance）</td>
+                <td style="padding:0.2rem 0;"><strong>◇━</strong> 聚合（Aggregation）</td>
+              </tr>
+              <tr style="color:var(--text-secondary);">
+                <td style="padding:0.2rem 0;" colspan="2">組合：部分不可獨立存在（訂單刪了→品項也消失）</td>
+              </tr>
+              <tr style="color:var(--text-secondary);">
+                <td style="padding:0.2rem 0;" colspan="2">聚合：部分可獨立存在（餐廳關了→外送員還在）</td>
+              </tr>
+              <tr style="color:var(--text-secondary);">
+                <td style="padding:0.2rem 0;" colspan="2">多重性：1（一個）、*（多個）、0..1（零或一）、1..*（一或多）</td>
+              </tr>
+            </table>
+          </div>
           <a href="#ch5-4" class="demo-explain-link">&#128214; 查看類別圖解說</a>
         </div>
 
