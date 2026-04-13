@@ -620,6 +620,20 @@ svg text {
   text-decoration: none; transition: background 0.15s;
 }
 .demo-explain-link:hover { background: var(--primary); color: #fff; }
+.uml-secondary {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border);
+}
+.uml-secondary-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.4rem;
+}
+.uml-secondary svg { opacity: 0.85; }
 
 .demo-footer-bar {
   background: var(--code-bg);
@@ -2504,7 +2518,31 @@ svg text {
             <line x1="35" y1="228" x2="133" y2="245" class="uml-line"/>
             <line x1="365" y1="228" x2="257" y2="290" class="uml-line"/>
           </svg>
-          <a href="#ch5-2" class="demo-explain-link">&#128214; 查看 Use Case 圖解說</a>
+          <!-- Secondary: Activity overview -->
+          <div class="uml-secondary">
+            <div class="uml-secondary-label">&#128260; 同時參考：活動圖（等等要走的流程）</div>
+            <svg viewBox="0 0 340 100" width="300">
+              <circle cx="15" cy="20" r="6" fill="var(--svg-stroke)"/>
+              <line x1="21" y1="20" x2="35" y2="20" class="uml-line" marker-end="url(#arrow)"/>
+              <rect x="35" y="8" width="65" height="24" rx="12" class="uml-fill"/>
+              <text x="68" y="24" text-anchor="middle" font-size="9" class="uml-text-sm">瀏覽餐廳</text>
+              <line x1="100" y1="20" x2="110" y2="20" class="uml-line" marker-end="url(#arrow)"/>
+              <rect x="110" y="8" width="60" height="24" rx="12" class="uml-fill"/>
+              <text x="140" y="24" text-anchor="middle" font-size="9" class="uml-text-sm">選餐點</text>
+              <line x1="170" y1="20" x2="180" y2="20" class="uml-line" marker-end="url(#arrow)"/>
+              <rect x="180" y="8" width="55" height="24" rx="12" class="uml-fill"/>
+              <text x="208" y="24" text-anchor="middle" font-size="9" class="uml-text-sm">付款</text>
+              <line x1="235" y1="20" x2="245" y2="20" class="uml-line" marker-end="url(#arrow)"/>
+              <rect x="245" y="8" width="55" height="24" rx="12" class="uml-fill"/>
+              <text x="273" y="24" text-anchor="middle" font-size="9" class="uml-text-sm">追蹤</text>
+              <line x1="300" y1="20" x2="310" y2="20" class="uml-line" marker-end="url(#arrow)"/>
+              <circle cx="320" cy="20" r="6" fill="none" stroke="var(--svg-stroke)" stroke-width="1.5"/>
+              <circle cx="320" cy="20" r="4" fill="var(--svg-stroke)"/>
+              <text x="170" y="55" text-anchor="middle" class="uml-text-sm" font-size="9" fill="var(--text-muted)">你即將以顧客身份走完這整個流程</text>
+            </svg>
+          </div>
+          <a href="#ch5-2" class="demo-explain-link" style="margin-right:0.5rem;">&#128214; 查看 Use Case 圖解說</a>
+          <a href="#ch5-1" class="demo-explain-link">&#128214; 查看活動圖解說</a>
         </div>
 
         <!-- UML Step 1: Activity Diagram (full ordering flow) -->
@@ -2537,7 +2575,23 @@ svg text {
             <circle cx="170" cy="274" r="8" fill="none" stroke="var(--svg-stroke)" stroke-width="2" style="opacity:0.4"/>
             <circle cx="170" cy="274" r="5" fill="var(--svg-stroke)" style="opacity:0.4"/>
           </svg>
-          <a href="#ch5-1" class="demo-explain-link">&#128214; 查看活動圖解說</a>
+          <!-- Secondary: Use Case context -->
+          <div class="uml-secondary">
+            <div class="uml-secondary-label">&#128260; 同時參考：你在哪個 Use Case？</div>
+            <svg viewBox="0 0 300 80" width="280">
+              <use href="#actor" x="5" y="5" width="25" height="38"/>
+              <text x="18" y="55" text-anchor="middle" font-size="9" class="uml-text-sm">顧客</text>
+              <ellipse cx="120" cy="20" rx="50" ry="14" class="uml-fill" style="opacity:0.35"/>
+              <text x="120" y="24" text-anchor="middle" font-size="9" class="uml-text-sm" style="opacity:0.4">搜尋餐廳</text>
+              <ellipse cx="120" cy="52" rx="50" ry="14" id="uc-highlight" class="uml-highlight-box" fill="var(--svg-fill)"/>
+              <text x="120" y="56" text-anchor="middle" font-size="9" class="uml-text-sm" font-weight="600">下單點餐</text>
+              <line x1="30" y1="22" x2="70" y2="20" class="uml-line" style="opacity:0.3"/>
+              <line x1="30" y1="28" x2="70" y2="52" class="uml-line" stroke="var(--primary)" stroke-width="2"/>
+              <text x="230" y="52" font-size="9" class="uml-text-sm" fill="var(--primary)">&#8592; 目前在這裡</text>
+            </svg>
+          </div>
+          <a href="#ch5-1" class="demo-explain-link" style="margin-right:0.5rem;">&#128214; 查看活動圖解說</a>
+          <a href="#ch5-2" class="demo-explain-link">&#128214; 查看 Use Case 圖解說</a>
         </div>
 
         <!-- UML Step 2: Sequence Diagram -->
@@ -2569,10 +2623,28 @@ svg text {
             <line x1="151" y1="230" x2="44" y2="230" class="uml-line-dashed" marker-end="url(#arrow-open)"/>
             <text x="97" y="224" text-anchor="middle" class="uml-text-sm">訂單確認</text>
           </svg>
+          <!-- Secondary: Activity context -->
+          <div class="uml-secondary">
+            <div class="uml-secondary-label">&#128260; 同時參考：活動圖中的位置</div>
+            <svg viewBox="0 0 340 60" width="300">
+              <rect x="5" y="5" width="65" height="22" rx="11" class="uml-fill" style="opacity:0.3"/>
+              <text x="38" y="20" text-anchor="middle" font-size="8" class="uml-text-sm" style="opacity:0.4">瀏覽餐廳</text>
+              <line x1="70" y1="16" x2="78" y2="16" class="uml-line" style="opacity:0.3"/>
+              <rect x="78" y="5" width="60" height="22" rx="11" class="uml-fill" style="opacity:0.3"/>
+              <text x="108" y="20" text-anchor="middle" font-size="8" class="uml-text-sm" style="opacity:0.4">選餐點</text>
+              <line x1="138" y1="16" x2="146" y2="16" class="uml-line" marker-end="url(#arrow)"/>
+              <rect x="146" y="2" width="80" height="28" rx="14" class="uml-highlight-box" fill="var(--svg-fill)"/>
+              <text x="186" y="20" text-anchor="middle" font-size="8" class="uml-text-sm" font-weight="700">確認訂單付款</text>
+              <line x1="226" y1="16" x2="234" y2="16" class="uml-line" style="opacity:0.3"/>
+              <rect x="234" y="5" width="55" height="22" rx="11" class="uml-fill" style="opacity:0.3"/>
+              <text x="262" y="20" text-anchor="middle" font-size="8" class="uml-text-sm" style="opacity:0.4">追蹤</text>
+              <text x="186" y="48" text-anchor="middle" font-size="9" class="uml-text-sm" fill="var(--primary)">序列圖展開這一步的內部細節 &#8593;</text>
+            </svg>
+          </div>
           <!-- MDA hint -->
-          <div style="margin-top:0.75rem;padding:0.65rem 0.75rem;background:var(--purple-bg);border-left:3px solid var(--purple);border-radius:0 6px 6px 0;font-size:0.8rem;">
-            <p style="margin:0 0 0.3rem;font-weight:700;color:var(--purple);">MDA 視角</p>
-            <p style="margin:0;color:var(--text-secondary);font-size:0.78rem;">這張序列圖屬於 <strong>PIM</strong>（平台獨立模型）— 描述物件互動邏輯，但不指定用 Java 或 Python。如果改成「用 Django REST API 呼叫 Stripe SDK」就變成 <strong>PSM</strong>（平台特定模型）。</p>
+          <div style="margin-top:0.5rem;padding:0.55rem 0.75rem;background:var(--purple-bg);border-left:3px solid var(--purple);border-radius:0 6px 6px 0;font-size:0.78rem;">
+            <p style="margin:0 0 0.2rem;font-weight:700;color:var(--purple);">MDA 視角</p>
+            <p style="margin:0;color:var(--text-secondary);font-size:0.76rem;">這張序列圖屬於 <strong>PIM</strong>（平台獨立模型）— 描述互動邏輯但不指定技術。改成「用 Django REST API 呼叫 Stripe SDK」就變成 <strong>PSM</strong>。</p>
           </div>
           <a href="#ch5-3" class="demo-explain-link" style="margin-right:0.5rem;">&#128214; 查看序列圖解說</a>
           <a href="#ch5-6" class="demo-explain-link">&#128214; 查看 MDA 解說</a>
@@ -2622,7 +2694,29 @@ svg text {
               <tr style="color:var(--text-secondary);"><td style="padding:0.15rem 0;">模型：狀態圖</td><td style="padding:0.15rem 0;">模型：資料流圖（DFD）</td></tr>
             </table>
           </div>
-          <a href="#ch5-5" class="demo-explain-link">&#128214; 查看狀態圖解說</a>
+          <!-- Secondary: Sequence snippet -->
+          <div class="uml-secondary">
+            <div class="uml-secondary-label">&#128260; 同時參考：每次狀態轉換背後的訊息（序列圖）</div>
+            <svg viewBox="0 0 320 100" width="300">
+              <rect x="10" y="5" width="60" height="20" rx="3" class="uml-fill"/>
+              <text x="40" y="19" text-anchor="middle" font-size="8" class="uml-text-sm" font-weight="600">訂單系統</text>
+              <rect x="130" y="5" width="55" height="20" rx="3" class="uml-fill-warn"/>
+              <text x="158" y="19" text-anchor="middle" font-size="8" class="uml-text-sm" font-weight="600">餐廳App</text>
+              <rect x="245" y="5" width="55" height="20" rx="3" class="uml-fill"/>
+              <text x="273" y="19" text-anchor="middle" font-size="8" class="uml-text-sm" font-weight="600">顧客App</text>
+              <line x1="40" y1="25" x2="40" y2="90" class="uml-line-dashed"/>
+              <line x1="158" y1="25" x2="158" y2="90" class="uml-line-dashed"/>
+              <line x1="273" y1="25" x2="273" y2="90" class="uml-line-dashed"/>
+              <line x1="40" y1="40" x2="158" y2="40" stroke="var(--svg-stroke)" stroke-width="1" marker-end="url(#arrow)"/>
+              <text x="99" y="36" text-anchor="middle" font-size="7.5" class="uml-text-sm">通知新訂單</text>
+              <line x1="158" y1="58" x2="40" y2="58" stroke="var(--svg-stroke)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-open)"/>
+              <text x="99" y="54" text-anchor="middle" font-size="7.5" class="uml-text-sm">接單確認</text>
+              <line x1="40" y1="76" x2="273" y2="76" stroke="var(--svg-stroke)" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-open)"/>
+              <text x="157" y="72" text-anchor="middle" font-size="7.5" class="uml-text-sm">狀態更新推播</text>
+            </svg>
+          </div>
+          <a href="#ch5-5" class="demo-explain-link" style="margin-right:0.5rem;">&#128214; 查看狀態圖解說</a>
+          <a href="#ch5-3" class="demo-explain-link">&#128214; 查看序列圖解說</a>
         </div>
 
         <!-- UML Step 4: Class Diagram (full relationships) -->
@@ -2754,7 +2848,25 @@ svg text {
               </tr>
             </table>
           </div>
-          <a href="#ch5-4" class="demo-explain-link">&#128214; 查看類別圖解說</a>
+          <!-- Secondary: State diagram showing completed -->
+          <div class="uml-secondary">
+            <div class="uml-secondary-label">&#128260; 同時參考：訂單已進入「已完成」狀態</div>
+            <svg viewBox="0 0 340 50" width="300">
+              <rect x="5" y="10" width="55" height="22" rx="11" fill="var(--green-bg)" stroke="var(--green)" stroke-width="1.5"/>
+              <text x="33" y="25" text-anchor="middle" font-size="8" class="uml-text-sm">已送達</text>
+              <line x1="60" y1="21" x2="80" y2="21" class="uml-line" marker-end="url(#arrow)"/>
+              <text x="70" y="16" font-size="7" class="uml-text-sm" fill="var(--text-muted)">確認</text>
+              <rect x="80" y="7" width="65" height="28" rx="14" fill="var(--primary-light)" stroke="var(--primary)" stroke-width="2.5"/>
+              <text x="113" y="25" text-anchor="middle" font-size="9" class="uml-text-sm" font-weight="700" fill="var(--primary)">已完成</text>
+              <line x1="145" y1="21" x2="165" y2="21" class="uml-line" marker-end="url(#arrow)"/>
+              <text x="155" y="16" font-size="7" class="uml-text-sm" fill="var(--text-muted)">評價</text>
+              <rect x="165" y="10" width="55" height="22" rx="11" class="uml-highlight-box" fill="var(--svg-fill)"/>
+              <text x="193" y="25" text-anchor="middle" font-size="8" class="uml-text-sm" font-weight="600">評價中</text>
+              <text x="280" y="25" font-size="9" class="uml-text-sm" fill="var(--text-muted)">&#8592; 你在這裡</text>
+            </svg>
+          </div>
+          <a href="#ch5-4" class="demo-explain-link" style="margin-right:0.5rem;">&#128214; 查看類別圖解說</a>
+          <a href="#ch5-5" class="demo-explain-link">&#128214; 查看狀態圖解說</a>
         </div>
 
       </div>
